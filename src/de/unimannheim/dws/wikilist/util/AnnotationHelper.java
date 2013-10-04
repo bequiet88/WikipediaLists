@@ -185,6 +185,7 @@ public class AnnotationHelper {
 					if (string.contains(matchingValue)) {
 						string = string.replaceFirst(matchingValue, "<" + tag + ">"
 								+ matchingValue + "</" + tag + ">");
+						count++;
 						break;
 					}
 					

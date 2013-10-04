@@ -133,6 +133,8 @@ public class WikiList {
 			
 			System.out.println("done!");
 			
+			System.out.println("Marked attributes in Gold: " + myGoldData.getNoOfMarkedAttributes() + " - Marked attributes in Training: "+ myTrainingsData.getNoOfMarkedAttributes());
+			
 			/*
 			 * List of used regexp: 
 			 * African American Writers - birthDate:
