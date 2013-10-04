@@ -1,13 +1,31 @@
 package de.unimannheim.dws.wikilist.reader;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Interface IListPageReader.
+ *
+ * @param <T> the generic type
+ */
 public interface IListPageReader<T> {
 
-	public void openInput(ReaderResource resource);
+	/**
+	 * Open input.
+	 *
+	 * @param resource the resource
+	 */
+	public void openInput(ReaderResource resource) throws Exception;
 
+	/**
+	 * Read input.
+	 *
+	 * @return the t
+	 * @throws Exception the exception
+	 */
 	public T readInput() throws Exception;
 
-	public void close();
-
-	public void writeOutputToFile(String path, String text);
+	/**
+	 * Close.
+	 */
+	public void close() throws Exception;
 
 }

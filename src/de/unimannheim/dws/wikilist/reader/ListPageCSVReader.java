@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,26 +13,38 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
+/**
+ * The Class ListPageCSVReader.
+ */
 public class ListPageCSVReader implements IListPageReader<List<List<String>>> {
 
+	/** The reader. */
 	private BufferedReader reader = null;
+
+	/** The writer. */
 	private BufferedWriter writer = null;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unimannheim.dws.wikilist.reader.IListPageReader#openInput(de.unimannheim
+	 * .dws.wikilist.reader.ReaderResource)
+	 */
 	@Override
-	public void openInput(ReaderResource resource) {
-		// TODO Auto-generated method stub
-		try {
-			reader = new BufferedReader(
-					new FileReader(
-							new File(resource.getResource()
-									)));
-			;
+	public void openInput(ReaderResource resource) throws Exception {
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		reader = new BufferedReader(new FileReader(new File(
+				resource.getResource())));
+		;
+
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#readInput()
+	 */
 	@Override
 	public List<List<String>> readInput() throws Exception {
 
@@ -56,18 +67,27 @@ public class ListPageCSVReader implements IListPageReader<List<List<String>>> {
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#close()
+	 */
 	@Override
-	public void close() {
-		try {
+	public void close() throws Exception {
+		if (reader != null)
 			reader.close();
+		if(writer != null)
 			writer.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
-	@Override
+	/**
+	 * Write output to file.
+	 * 
+	 * @param path
+	 *            the path
+	 * @param text
+	 *            the text
+	 */
 	public void writeOutputToFile(String path, String text) {
 		try {
 			writer = new BufferedWriter(new FileWriter(new File(path)));

@@ -56,7 +56,8 @@ public class ExampleDBpedia1
             */
             		"SELECT * WHERE {"
                     //+"<http://dbpedia.org/resource/John_de_Warenne,_7th_Earl_of_Surrey> foaf:name ?name ."
-                    +"<http://dbpedia.org/resource/Edward,_the_Black_Prince> dbpprop:title ?title. }";
+            		//                 +"<http://dbpedia.org/resource/James_Baldwin> dbpprop:dateOfBirth ?dob. }";
+                    +"<http://dbpedia.org/resource/Henry_FitzHugh,_1st_Baron_FitzHugh> dbpprop:title ?title. }";
             /*
              * Example 1
              */
@@ -115,7 +116,7 @@ public class ExampleDBpedia1
 //            }
             
             
-            System.out.println(ResultSetFormatter.toList(rs).toString());
+            System.out.println(ResultSetFormatter.asXMLString(rs));//asText(rs));//toList(rs).toString());
             
             qexec.close();
         } catch (Exception e) {

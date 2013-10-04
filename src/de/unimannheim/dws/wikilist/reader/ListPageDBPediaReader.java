@@ -14,15 +14,28 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
+/**
+ * The Class ListPageDBPediaReader.
+ */
 public class ListPageDBPediaReader implements
 		IListPageReader<HashMap<String, String>> {
 
+	/** The writer. */
 	private BufferedWriter writer = null;
+	
+	/** The dbp res. */
 	private ReaderResource dbpRes = null;
+	
+	/** The query str. */
 	private String queryStr = null;
+	
+	/** The query. */
 	private Query query = null;
+	
+	/** The qexec. */
 	private QueryExecution qexec = null;
 
+	/** The prefix. */
 	private String prefix = "PREFIX owl: <http://www.w3.org/2002/07/owl#>"
 			+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>"
 			+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>"
@@ -35,6 +48,9 @@ public class ListPageDBPediaReader implements
 			+ "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
 			+ "PREFIX dbo: <http://dbpedia.org/ontology/>";
 
+	/* (non-Javadoc)
+	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#openInput(de.unimannheim.dws.wikilist.reader.ReaderResource)
+	 */
 	@Override
 	public void openInput(ReaderResource resource) {
 
@@ -42,6 +58,9 @@ public class ListPageDBPediaReader implements
 
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#readInput()
+	 */
 	@Override
 	public HashMap<String, String> readInput() throws Exception {
 
@@ -78,21 +97,29 @@ public class ListPageDBPediaReader implements
 
 				// ResultSetFormatter.out(System.out, rs, query);
 				// Add result to HashMap.
-				result.put(dbpInstance, ResultSetFormatter.toList(rs).toString());
-				
+				result.put(dbpInstance, ResultSetFormatter.asXMLString(rs));
+				System.out.println("DBPedia Query successful for "+ dbpInstance);
 				this.close();
 			}
 		}
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#close()
+	 */
 	@Override
 	public void close() {
 		if (qexec != null)
 			qexec.close();
 	}
 
-	@Override
+	/**
+	 * Write output to file.
+	 *
+	 * @param path the path
+	 * @param text the text
+	 */
 	public void writeOutputToFile(String path, String text) {
 		try {
 			writer = new BufferedWriter(new FileWriter(new File(path)));
