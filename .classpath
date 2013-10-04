@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.49.jar"/>
+	<classpathentry kind="lib" path="lib/wikipedia-api-0.9.2.jar" sourcepath="lib/wikipedia-api-0.9.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jwpl.googlecode.com/svn/tags/de.tudarmstadt.ukp.wikipedia-0.9.2/apidocs/API-0.9.2/index.html"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/minorthird_20080611.jar" sourcepath="lib/minorthird_20080611.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://minorthird.sourceforge.net/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jcl-over-slf4j-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/jena-arq-2.11.0.jar" sourcepath="lib-src/jena-arq-2.11.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jena.apache.org/documentation/javadoc/arq/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jena-core-2.11.0.jar" sourcepath="lib-src/jena-core-2.11.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jena.apache.org/documentation/javadoc/jena/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jena-iri-1.0.0.jar" sourcepath="lib-src/jena-iri-1.0.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jena-sdb-1.4.0.jar" sourcepath="lib-src/jena-sdb-1.4.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jena.apache.org/documentation/javadoc/sdb/index.html"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jena-tdb-1.0.0.jar" sourcepath="lib-src/jena-tdb-1.0.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://jena.apache.org/documentation/javadoc/tdb/index.html"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl-2.11.0.jar"/>
+	<classpathentry kind="lib" path="lib/xml-apis-1.4.01.jar"/>
+	<classpathentry kind="lib" path="lib/commons-csv-1.0-SNAPSHOT.jar" sourcepath="lib-src/commons-csv-1.0-SNAPSHOT-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/proper/commons-csv/apidocs/index.html"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
