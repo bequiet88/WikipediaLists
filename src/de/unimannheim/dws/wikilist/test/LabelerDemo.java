@@ -47,8 +47,10 @@ public class LabelerDemo {
 
 			TextBaseLoader loader = new TextBaseLoader(
 					TextBaseLoader.DOC_PER_FILE, true);
+			
 			loader.load(dataDir);
 			TextBase base = loader.getLabels().getTextBase();
+			
 			System.out.println(loader.getLabels().toString());
 			MutableTextLabels labels = loader.getLabels();
 			
