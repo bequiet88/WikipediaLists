@@ -55,9 +55,12 @@ public class WikiList {
 		/*****************************
 		 * Data Collection
 		 *****************************/
-		try {
+		try {			
+			
 			/*
 			 * Read List of Instances
+			 * TODO: Make a loop for more than one row in Instance List
+			 * TODO: Read list of attributes available in one list of instances
 			 */
 			System.out.println("Read instance list ..");
 
@@ -104,21 +107,22 @@ public class WikiList {
 
 			TestDataSet myTestData = new TestDataSet();
 			myTestData.create(myWikiReader.readInput(), null);
+			myTestData.writeOutputToFile(
+					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
+							+ wikiListName + "_" + rdfTag + ".txt",
+					myTestData.toString());
 			myWikiReader.close();
 
 			System.out.println("done!");
 
 			/*
 			 * Obtain Gold Standard Data Set with JWPL and Regex
+			 * TODO: Work with columns (may use JWPL library to access a specific column 
 			 */
 			System.out.println("Obtain Gold Data Set ..");
 
 			GoldDataSet myGoldData = new GoldDataSet();
 			myGoldData.create(myTestData.getWikiMarkUpList(), null);
-			myGoldData.writeOutputToFile(
-					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/gold_"
-							+ wikiListName + "_" + rdfTag + ".txt",
-					myGoldData.toString());
 
 			System.out.println("done!");
 
@@ -160,7 +164,7 @@ public class WikiList {
 					"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
 							+ wikiListName + "_" + rdfTag + ".txt");
 			File testDir = new File(
-					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/gold_"
+					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
 							+ wikiListName + "_" + rdfTag + ".txt");
 
 			/*****************************
@@ -195,8 +199,8 @@ public class WikiList {
 			// "Minorthird TextLabels");
 			//
 			//
-			TextBaseEditor editor = TextBaseEditor.edit(labels, null);
-			editor.getViewer().getGuessBox().setSelectedItem("title");
+			// TextBaseEditor editor = TextBaseEditor.edit(labels, null);
+			// editor.getViewer().getGuessBox().setSelectedItem("title");
 
 			/*
 			 * Load Test Data into MinorThird
@@ -225,9 +229,6 @@ public class WikiList {
 
 			Splitter<Span> crossValSplitter = new CrossValSplitter<Span>(5);
 
-			Splitter<Span> fixedTestSplitter = new FixedTestSetSplitter<Span>(
-					testBase.documentSpanIterator());
-
 			/*
 			 * Run Experiment
 			 */
@@ -235,33 +236,58 @@ public class WikiList {
 			TextLabelsExperiment experiment = new TextLabelsExperiment(labels,
 					crossValSplitter, annotLearner, "title", "newTitles");
 
-			// TextLabelsExperiment experiment = new
-			// TextLabelsExperiment(labels,
-			// fixedTestSplitter, testLabels, annotLearner, "title", null,
-			// "newTitles");
+			/*
+			 * Get Model Evaluation
+			 */
 
 			experiment.doExperiment();
 			new ViewerFrame("Annotation Learner Experiment", experiment.toGUI());
 
-			Iterator<Span> resIter = experiment.getTestLabels()
-					.closureIterator("newTitles");
+			/*
+			 * Apply model to Testdata Set
+			 */
+
+			// TODO: Apply model and get labelled data out of MinorThird
+			annot.annotate(testLabels);
+
+			// BasicTextLabels annotatedLabels = (BasicTextLabels)
+			// annot.annotatedCopy(testLabels);
+
+			testLabels.saveAs(new File(
+					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/modelApplied"
+							+ wikiListName + "_" + rdfTag + ".labels"),
+					"Minorthird TextLabels");
+
+			for (String label : testLabels.getTypes())
+				System.out.println(label);
+
+			Iterator<Span> newTitles = testLabels
+					.closureIterator("_prediction"); // instanceIterator("title");
 
 			System.out.println("Newly found Entries\n");
 
-			
 			int counter = 0;
-			
-			while (resIter.hasNext()) {
+
+			while (newTitles.hasNext()) {
 				Span currSpan = spanIter.next();
 
 				System.out.println(currSpan.asString() + " "
-						+ currSpan.getDocumentId());
+						+ currSpan.getDocumentId() + "\n");
 				counter++;
 			}
-			
-			myTestData.setNoOfMarkedAttributes(counter);
-			
-			System.out.println(myTestData.getNoOfMarkedAttributes());
+
+			System.out.println("" + counter);
+			// myTestData.setNoOfMarkedAttributes(counter);
+
+			/*
+			 * TODO: Evaluate against Gold Data Set a) New information found b)
+			 * Higher quality (literal information becoming URI information) c)
+			 * No new data found
+			 */
+
+			/*
+			 * TODO: Prepare RDF Output
+			 */
 
 			// Load your data into a TextBase (extractor) or a DataSet
 			// (classifier).
@@ -279,7 +305,6 @@ public class WikiList {
 			e.printStackTrace();
 
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 
 		} catch (Exception e) {
