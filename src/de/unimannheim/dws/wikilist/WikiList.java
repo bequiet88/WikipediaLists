@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import de.unimannheim.dws.wikilist.evaluation.GoldDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TestDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TrainingsDataSet;
@@ -15,22 +17,19 @@ import de.unimannheim.dws.wikilist.reader.ListPageCSVReader;
 import de.unimannheim.dws.wikilist.reader.ListPageDBPediaReader;
 import de.unimannheim.dws.wikilist.reader.ListPageWikiMarkupReader;
 import de.unimannheim.dws.wikilist.reader.ReaderResource;
-import edu.cmu.minorthird.classify.BasicDataset;
-import edu.cmu.minorthird.classify.Dataset;
 import edu.cmu.minorthird.classify.Splitter;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
-import edu.cmu.minorthird.classify.experiments.FixedTestSetSplitter;
+import edu.cmu.minorthird.text.Annotator;
 import edu.cmu.minorthird.text.BasicTextLabels;
 import edu.cmu.minorthird.text.Span;
 import edu.cmu.minorthird.text.TextBase;
 import edu.cmu.minorthird.text.TextBaseLoader;
-import edu.cmu.minorthird.text.gui.TextBaseEditor;
 import edu.cmu.minorthird.text.learn.AnnotatorLearner;
 import edu.cmu.minorthird.text.learn.AnnotatorTeacher;
 import edu.cmu.minorthird.text.learn.TextLabelsAnnotatorTeacher;
+import edu.cmu.minorthird.text.learn.experiments.ExtractionEvaluation;
 import edu.cmu.minorthird.text.learn.experiments.TextLabelsExperiment;
-import edu.cmu.minorthird.ui.Recommended;
-import edu.cmu.minorthird.ui.Recommended.VPSMMLearner2;
+import edu.cmu.minorthird.ui.Recommended.CRFAnnotatorLearner;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 public class WikiList {
@@ -52,15 +51,17 @@ public class WikiList {
 	 */
 	public static void main(String[] args) {
 
+		Logger log = Logger.getLogger(WikiList.class);
+
 		/*****************************
 		 * Data Collection
 		 *****************************/
-		try {			
-			
+		try {
+
 			/*
-			 * Read List of Instances
-			 * TODO: Make a loop for more than one row in Instance List
-			 * TODO: Read list of attributes available in one list of instances
+			 * Read List of Instances TODO: Make a loop for more than one row in
+			 * Instance List TODO: Read list of attributes available in one list
+			 * of instances
 			 */
 			System.out.println("Read instance list ..");
 
@@ -95,64 +96,69 @@ public class WikiList {
 
 			System.out.println("done!");
 
-			/*
-			 * Obtain Test Data Set (plain Wiki Mark Up)
-			 */
-			System.out.println("Obtain Test Data Set ..");
+			if (false) {
+				/*
+				 * Obtain Test Data Set (plain Wiki Mark Up)
+				 */
+				System.out.println("Obtain Test Data Set ..");
 
-			ReaderResource myTestRes = new ReaderResource(wikiListName);
+				ReaderResource myTestRes = new ReaderResource(wikiListName);
 
-			ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
-			myWikiReader.openInput(myTestRes);
+				ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
+				myWikiReader.openInput(myTestRes);
 
-			TestDataSet myTestData = new TestDataSet();
-			myTestData.create(myWikiReader.readInput(), null);
-			myTestData.writeOutputToFile(
-					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
-							+ wikiListName + "_" + rdfTag + ".txt",
-					myTestData.toString());
-			myWikiReader.close();
+				TestDataSet myTestData = new TestDataSet();
+				myTestData.create(myWikiReader.readInput(), null);
+				myTestData.writeOutputToFile(
+						"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
+								+ wikiListName + "_" + rdfTag + ".txt",
+						myTestData.toString());
+				myWikiReader.close();
 
-			System.out.println("done!");
+				System.out.println("done!");
 
-			/*
-			 * Obtain Gold Standard Data Set with JWPL and Regex
-			 * TODO: Work with columns (may use JWPL library to access a specific column 
-			 */
-			System.out.println("Obtain Gold Data Set ..");
+				/*
+				 * Obtain Gold Standard Data Set with JWPL and Regex TODO: Work
+				 * with columns (may use JWPL library to access a specific
+				 * column
+				 */
+				System.out.println("Obtain Gold Data Set ..");
 
-			GoldDataSet myGoldData = new GoldDataSet();
-			myGoldData.create(myTestData.getWikiMarkUpList(), null);
+				GoldDataSet myGoldData = new GoldDataSet();
+				myGoldData.create(myTestData.getWikiMarkUpList(), null);
 
-			System.out.println("done!");
+				System.out.println("done!");
 
-			/*
-			 * Obtain Training Data Set with JWPL and DBPedia Values
-			 */
-			System.out.println("Obtain Training Data Set ..");
+				/*
+				 * Obtain Training Data Set with JWPL and DBPedia Values
+				 */
+				System.out.println("Obtain Training Data Set ..");
 
-			ReaderResource myTrainRes = new ReaderResource(dbpediaResources,
-					rdfTag, rdfTagPrefix);
+				ReaderResource myTrainRes = new ReaderResource(
+						dbpediaResources, rdfTag, rdfTagPrefix);
 
-			ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
-			myDBPReader.openInput(myTrainRes);
+				ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
+				myDBPReader.openInput(myTrainRes);
 
-			HashMap<String, String> myDBPValues = myDBPReader.readInput();
+				HashMap<String, String> myDBPValues = myDBPReader.readInput();
 
-			TrainingsDataSet myTrainingsData = new TrainingsDataSet();
-			myTrainingsData.create(myTestData.getWikiMarkUpList(), myDBPValues);
-			myDBPReader.close();
-			myTrainingsData.writeOutputToFile(
-					"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
-							+ wikiListName + "_" + rdfTag + ".txt",
-					myTrainingsData.toString());
+				TrainingsDataSet myTrainingsData = new TrainingsDataSet();
+				myTrainingsData.create(myTestData.getWikiMarkUpList(),
+						myDBPValues);
+				myDBPReader.close();
+				myTrainingsData.writeOutputToFile(
+						"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
+								+ wikiListName + "_" + rdfTag + ".txt",
+						myTrainingsData.toString());
 
-			System.out.println("done!");
+				System.out.println("done!");
 
-			System.out.println("Marked attributes in Gold: "
-					+ myGoldData.getNoOfMarkedAttributes()
-					+ " - Marked attributes in Training: "
-					+ myTrainingsData.getNoOfMarkedAttributes());
+				System.out.println("Marked attributes in Gold: "
+						+ myGoldData.getNoOfMarkedAttributes()
+						+ " - Marked attributes in Training: "
+						+ myTrainingsData.getNoOfMarkedAttributes());
+
+			}
 
 			/*
 			 * List of used regexp: African American Writers - birthDate:
@@ -197,8 +203,6 @@ public class WikiList {
 			// labels.saveAs(new File(
 			// "D:/Studium/Classes_Sem3/Seminar/Codebase/labels_title.txt"),
 			// "Minorthird TextLabels");
-			//
-			//
 			// TextBaseEditor editor = TextBaseEditor.edit(labels, null);
 			// editor.getViewer().getGuessBox().setSelectedItem("title");
 
@@ -208,26 +212,32 @@ public class WikiList {
 
 			TextBaseLoader testLoader = new TextBaseLoader(
 					TextBaseLoader.DOC_PER_LINE, TextBaseLoader.USE_XML);
-			TextBase testBase = testLoader.load(testDir);
+			testLoader.load(testDir);
 			BasicTextLabels testLabels = (BasicTextLabels) loader.getLabels();
 
 			/*
 			 * Instantiate an Annotator
 			 */
 
+			long startTime = System.nanoTime();
 			AnnotatorTeacher annotTeacher = new TextLabelsAnnotatorTeacher(
 					labels, "title");
 
-			AnnotatorLearner annotLearner = new VPSMMLearner2();
+			AnnotatorLearner annotLearner = new CRFAnnotatorLearner();
 
-			edu.cmu.minorthird.text.Annotator annot = annotTeacher
-					.train(annotLearner);
+			Annotator annot = annotTeacher.train(annotLearner);
+			long endTime = System.nanoTime();
 
+			long elapsedTime = endTime - startTime;
+
+			double elapsedTimeSec = elapsedTime / 1000000000;
+
+			
 			/*
 			 * Create a Splitter
 			 */
 
-			Splitter<Span> crossValSplitter = new CrossValSplitter<Span>(5);
+			Splitter<Span> crossValSplitter = new CrossValSplitter<Span>(3);
 
 			/*
 			 * Run Experiment
@@ -242,49 +252,44 @@ public class WikiList {
 
 			experiment.doExperiment();
 			new ViewerFrame("Annotation Learner Experiment", experiment.toGUI());
+			ExtractionEvaluation eval = experiment.getEvaluation();
 
 			/*
 			 * Apply model to Testdata Set
 			 */
 
-			// TODO: Apply model and get labelled data out of MinorThird
 			annot.annotate(testLabels);
 
-			// BasicTextLabels annotatedLabels = (BasicTextLabels)
-			// annot.annotatedCopy(testLabels);
-
-			testLabels.saveAs(new File(
-					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/modelApplied"
-							+ wikiListName + "_" + rdfTag + ".labels"),
-					"Minorthird TextLabels");
-
-			for (String label : testLabels.getTypes())
-				System.out.println(label);
-
-			Iterator<Span> newTitles = testLabels
-					.closureIterator("_prediction"); // instanceIterator("title");
-
-			System.out.println("Newly found Entries\n");
+			System.out.println("\nPredicted Entries:\n");
 
 			int counter = 0;
 
-			while (newTitles.hasNext()) {
-				Span currSpan = spanIter.next();
-
-				System.out.println(currSpan.asString() + " "
-						+ currSpan.getDocumentId() + "\n");
+			for (Iterator<Span> i = testLabels.instanceIterator("_prediction"); i
+					.hasNext();) {
+				Span span = i.next();
+				System.out.println(span.toString());
 				counter++;
 			}
 
-			System.out.println("" + counter);
+			System.out.println("Number of predicted attributes: " + counter);
+			System.out.println("Elapsed Time for Training (sec)"
+					+ elapsedTimeSec);
+
+
 			// myTestData.setNoOfMarkedAttributes(counter);
 
 			/*
+			 * Evaluation
+			 * 
 			 * TODO: Evaluate against Gold Data Set a) New information found b)
 			 * Higher quality (literal information becoming URI information) c)
 			 * No new data found
+			 * 
+			 * TODO: Also save properties of classification run (eval) such as:
+			 * Learner name, time elapsed, confusion matrix, f-score
 			 */
 
+			
 			/*
 			 * TODO: Prepare RDF Output
 			 */
