@@ -30,6 +30,14 @@ import edu.cmu.minorthird.text.learn.TextLabelsAnnotatorTeacher;
 import edu.cmu.minorthird.text.learn.experiments.ExtractionEvaluation;
 import edu.cmu.minorthird.text.learn.experiments.TextLabelsExperiment;
 import edu.cmu.minorthird.ui.Recommended.CRFAnnotatorLearner;
+import edu.cmu.minorthird.ui.Recommended.HMMAnnotatorLearner;
+import edu.cmu.minorthird.ui.Recommended.MEMMLearner;
+import edu.cmu.minorthird.ui.Recommended.SVMCMMLearner;
+import edu.cmu.minorthird.ui.Recommended.SemiCRFAnnotatorLearner;
+import edu.cmu.minorthird.ui.Recommended.VPCMMLearner;
+import edu.cmu.minorthird.ui.Recommended.VPHMMLearner;
+import edu.cmu.minorthird.ui.Recommended.VPSMMLearner;
+import edu.cmu.minorthird.ui.Recommended.VPSMMLearner2;
 import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 public class WikiList {
@@ -219,62 +227,99 @@ public class WikiList {
 			 * Instantiate an Annotator
 			 */
 
-			long startTime = System.nanoTime();
-			AnnotatorTeacher annotTeacher = new TextLabelsAnnotatorTeacher(
-					labels, "title");
-
-			AnnotatorLearner annotLearner = new CRFAnnotatorLearner();
-
-			Annotator annot = annotTeacher.train(annotLearner);
-			long endTime = System.nanoTime();
-
-			long elapsedTime = endTime - startTime;
-
-			double elapsedTimeSec = elapsedTime / 1000000000;
+			List<List<String>> results = new ArrayList<List<String>>();
+			List<AnnotatorLearner> annotLearners = new ArrayList<AnnotatorLearner>();
+			annotLearners.add(new VPSMMLearner2());
+			annotLearners.add(new VPCMMLearner());
+			annotLearners.add(new CRFAnnotatorLearner());
+			annotLearners.add(new HMMAnnotatorLearner());
+			annotLearners.add(new MEMMLearner());
+			annotLearners.add(new SemiCRFAnnotatorLearner());
+			annotLearners.add(new SVMCMMLearner());
+			annotLearners.add(new VPHMMLearner());
+			annotLearners.add(new VPSMMLearner());
 
 			
-			/*
-			 * Create a Splitter
-			 */
+			for (AnnotatorLearner annotLearner : annotLearners) {
+//				long startTime = System.nanoTime();		
+//				AnnotatorTeacher annotTeacher = new TextLabelsAnnotatorTeacher(
+//						labels, "title");
+//
+//				Annotator annot = annotTeacher.train(annotLearner);
+//				long endTime = System.nanoTime();
+//
+//				long elapsedTime = endTime - startTime;
+//
+//				double elapsedTimeSec = elapsedTime / 1000000000;
 
-			Splitter<Span> crossValSplitter = new CrossValSplitter<Span>(3);
+				/*
+				 * Create a Splitter
+				 */
 
-			/*
-			 * Run Experiment
-			 */
+				Splitter<Span> crossValSplitter = new CrossValSplitter<Span>(3);
 
-			TextLabelsExperiment experiment = new TextLabelsExperiment(labels,
-					crossValSplitter, annotLearner, "title", "newTitles");
+				/*
+				 * Run Experiment
+				 */
 
-			/*
-			 * Get Model Evaluation
-			 */
+				TextLabelsExperiment experiment = new TextLabelsExperiment(labels,
+						crossValSplitter, annotLearner, "title", "newTitles");
 
-			experiment.doExperiment();
-			new ViewerFrame("Annotation Learner Experiment", experiment.toGUI());
-			ExtractionEvaluation eval = experiment.getEvaluation();
+				/*
+				 * Get Model Evaluation
+				 */
 
-			/*
-			 * Apply model to Testdata Set
-			 */
-
-			annot.annotate(testLabels);
-
-			System.out.println("\nPredicted Entries:\n");
-
-			int counter = 0;
-
-			for (Iterator<Span> i = testLabels.instanceIterator("_prediction"); i
-					.hasNext();) {
-				Span span = i.next();
-				System.out.println(span.toString());
-				counter++;
+				experiment.doExperiment();
+				//new ViewerFrame("Annotation Learner Experiment", experiment.toGUI());
+				ExtractionEvaluation eval = experiment.getEvaluation();
+				
+				List<String> result = new ArrayList<String>();
+				result.add(annotLearner.getClass().toString());
+				result.add(""+eval.spanPrecision());
+				result.add(""+eval.spanRecall());
+				result.add(""+eval.spanF1());
+				result.add(""+eval.tokenPrecision());
+				result.add(""+eval.tokenRecall());
+				result.add(""+eval.tokenF1());
+				results.add(result);
 			}
+			
+			
+			for (List<String> result : results) {
+				System.out.println("New List starts.");
+				System.out.println("Name: "+result.get(0));
+				System.out.println("Span Prec: "+result.get(1));
+				System.out.println("Span Recall: "+result.get(2));
+				System.out.println("Span F1: "+result.get(3));
+				System.out.println("Token Prec: "+result.get(4));
+				System.out.println("Token Recall: "+result.get(5));
+				System.out.println("Token F1: "+result.get(6));
+	
+			}
+			
+			
+			
 
-			System.out.println("Number of predicted attributes: " + counter);
-			System.out.println("Elapsed Time for Training (sec)"
-					+ elapsedTimeSec);
-
+//			/*
+//			 * Apply model to Testdata Set
+//			 */
+//
+//			annot.annotate(testLabels);
+//
+//			System.out.println("\nPredicted Entries:\n");
+//
+//			int counter = 0;
+//
+//			for (Iterator<Span> i = testLabels.instanceIterator("_prediction"); i
+//					.hasNext();) {
+//				Span span = i.next();
+//				System.out.println(span.toString());
+//				counter++;
+//			}
+//
+//			System.out.println("Number of predicted attributes: " + counter);
+//			System.out.println("Elapsed Time for Training (sec)"
+//					+ elapsedTimeSec);
 
 			// myTestData.setNoOfMarkedAttributes(counter);
 
@@ -289,7 +334,6 @@ public class WikiList {
 			 * Learner name, time elapsed, confusion matrix, f-score
 			 */
 
-			
 			/*
 			 * TODO: Prepare RDF Output
 			 */

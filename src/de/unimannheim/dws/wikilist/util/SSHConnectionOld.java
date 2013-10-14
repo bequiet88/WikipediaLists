@@ -9,11 +9,11 @@ import java.sql.Statement;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
-public class SSHConnection {
+public class SSHConnectionOld {
 
 	private Session session;
 
-	public SSHConnection() {
+	public SSHConnectionOld() {
 		// setup ssh
 		
 		String user = "uwiki";
@@ -46,12 +46,6 @@ public class SSHConnection {
 			System.out.println(RS.getString(1));
 		dbConn.close();
 		connection.close();
-	}
-	
-	public Connection getMySQLConnection() throws Exception {
-		Class.forName("com.mysql.jdbc.Driver").newInstance();
-		Connection dbConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:1234/jwpl?user=wikilist&password=likiwist");
-		return dbConn;
 	}
 
     public void close() {
