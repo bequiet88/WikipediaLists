@@ -1,25 +1,16 @@
-package de.unimannheim.dws.wikilist.test;
+package de.unimannheim.dws.wikilist.util;
 
-import java.io.ObjectInputStream.GetField;
-import java.net.URLEncoder;
-import java.sql.Connection;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.Page;
-import de.tudarmstadt.ukp.wikipedia.api.PageQuery;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
 import de.tudarmstadt.ukp.wikipedia.api.Wikipedia;
-import de.unimannheim.dws.wikilist.util.Pair;
-import de.unimannheim.dws.wikilist.util.SSHConnection;
 
 public class ProcessTable {
 	public static void main(String[] args) throws Exception {
@@ -51,7 +42,7 @@ public class ProcessTable {
 		
 	}
 
-	private static List<List<String>> parseFirstTable(String wikipage) {
+	public static List<List<String>> parseFirstTable(String wikipage) {
 		List<List<String>> result = new LinkedList<List<String>>();
 		
 		String[] lines = wikipage.split("\n");

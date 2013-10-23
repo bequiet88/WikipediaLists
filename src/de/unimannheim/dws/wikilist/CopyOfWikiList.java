@@ -10,13 +10,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import de.unimannheim.dws.wikilist.evaluation.GoldDataSet;
+import de.unimannheim.dws.wikilist.evaluation.EvaluationDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TestDataSet;
-import de.unimannheim.dws.wikilist.evaluation.TrainingsDataSet;
 import de.unimannheim.dws.wikilist.reader.ListPageCSVReader;
 import de.unimannheim.dws.wikilist.reader.ListPageDBPediaReader;
 import de.unimannheim.dws.wikilist.reader.ListPageWikiMarkupReader;
 import de.unimannheim.dws.wikilist.reader.ReaderResource;
+import de.unimannheim.dws.wikilist.util.ProcessTable;
 import edu.cmu.minorthird.classify.Splitter;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
 import edu.cmu.minorthird.text.Annotator;
@@ -97,10 +97,13 @@ public class CopyOfWikiList {
 
 				for (List<String> list : myListsList) {
 
-					if (!list.get(2).equals("Table"))
+					if (list.get(0).contains("X"))
 						continue;
 
-					wikiListURL = list.get(0);
+					if (!list.get(3).equals("Table"))
+						continue;
+
+					wikiListURL = list.get(1);
 					wikiListName = wikiListURL.replace(
 							"http://en.wikipedia.org/wiki/", "");
 
@@ -114,7 +117,7 @@ public class CopyOfWikiList {
 
 					for (List<String> instanceList : myInstancesList) {
 
-						if (instanceList.get(0).equals(wikiListURL)) {
+						if (instanceList.get(1).equals(wikiListURL)) {
 							regexInstances = instanceList.get(1);
 							captureGroup = instanceList.get(2);
 							for (int i = 3; i < instanceList.size(); i++) {
@@ -125,7 +128,7 @@ public class CopyOfWikiList {
 					}
 
 					/*
-					 * Read list of DBPedia Attributes
+					 * Read list of DBPedia Attributes ambiguously
 					 */
 					try {
 						columnInstance = Integer.parseInt(list.get(4));
@@ -133,12 +136,12 @@ public class CopyOfWikiList {
 						System.out
 								.println("For table "
 										+ wikiListName
-										+ " no instance column was set. Aborting the processing of this table.");
+										+ " no instance column was set ambiguously. Aborting the processing of this table.");
 						continue;
 					}
 
 					List<String> dbpediaAttributes = new ArrayList<String>();
-					for (int i = 5; i < list.size(); i++) {
+					for (int i = 6; i < list.size(); i++) {
 						dbpediaAttributes.add(list.get(i));
 					}
 
@@ -163,9 +166,9 @@ public class CopyOfWikiList {
 						regexAttribute = "(\\[[A-Za-z0-9,' ]*\\|)";
 
 						/*
-						 * Obtain Test Data Set (plain Wiki Mark Up)
+						 * Obtain plain Wiki Mark Up (formerly Test Data Set)
 						 */
-						System.out.println("Obtain Test Data Set ..");
+						System.out.println("Obtain Plain Wiki Mark Up ..");
 
 						ReaderResource myTestRes = new ReaderResource(
 								wikiListName);
@@ -175,6 +178,9 @@ public class CopyOfWikiList {
 
 						TestDataSet myTestData = new TestDataSet();
 						myTestData.create(myWikiReader.readInput(), null);
+						
+						myTestData.setFirstTable(ProcessTable.parseFirstTable(myTestData.toString()));
+						
 						myTestData.writeOutputToFile(
 								"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
 										+ wikiListName + "_" + rdfTag + ".txt",
@@ -183,49 +189,72 @@ public class CopyOfWikiList {
 
 						System.out.println("done!");
 
+//						/*
+//						 * Obtain Gold Standard Data Set with JWPL and Regex
+//						 * TODO: Work with columns (may use JWPL library to
+//						 * access a specific column
+//						 */
+//						System.out.println("Obtain Gold Data Set ..");
+//
+//						GoldDataSet myGoldData = new GoldDataSet();
+//						myGoldData.create(myTestData.getWikiMarkUpList(), null);
+//
+//						System.out.println("done!");
+
 						/*
-						 * Obtain Gold Standard Data Set with JWPL and Regex
-						 * TODO: Work with columns (may use JWPL library to
-						 * access a specific column
+						 * Obtain Evaluation Data Set with JWPL and DBPedia Values merged
 						 */
-						System.out.println("Obtain Gold Data Set ..");
+						System.out.println("Obtain Evaluation Data Set ..");
 
-						GoldDataSet myGoldData = new GoldDataSet();
-						myGoldData.create(myTestData.getWikiMarkUpList(), null);
-
-						System.out.println("done!");
-
-						/*
-						 * Obtain Training Data Set with JWPL and DBPedia Values
-						 */
-						System.out.println("Obtain Training Data Set ..");
-
-						ReaderResource myTrainRes = new ReaderResource(
+						ReaderResource myEvalRes = new ReaderResource(
 								dbpediaResources, rdfTag, rdfTagPrefix);
 
 						ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
-						myDBPReader.openInput(myTrainRes);
+						myDBPReader.openInput(myEvalRes);
+						myDBPReader.close();
 
 						HashMap<String, String> myDBPValues = myDBPReader
 								.readInput();
-
-						TrainingsDataSet myTrainingsData = new TrainingsDataSet();
-						myTrainingsData.create(myTestData.getWikiMarkUpList(),
-								myDBPValues);
 						myDBPReader.close();
-						myTrainingsData.writeOutputToFile(
-								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
+
+						EvaluationDataSet myEvalData = new EvaluationDataSet();
+						myEvalData.create(myTestData.getWikiMarkUpList(),
+								myDBPValues);
+
+						myEvalData.writeOutputToFile(
+								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/evaluation_"
 										+ wikiListName + "_" + rdfTag + ".txt",
-								myTrainingsData.toString());
+								myEvalData.toString());
 
-						System.out.println("done!");
+						System.out.println("done!");					}
 
-						System.out.println("Marked attributes in Gold: "
-								+ myGoldData.getNoOfMarkedAttributes()
-								+ " - Marked attributes in Training: "
-								+ myTrainingsData.getNoOfMarkedAttributes());
-
-					}
+						
+						
+						
+//						/*
+//						 * Obtain Training Data Set with JWPL and DBPedia Values
+//						 */
+//						System.out.println("Obtain Training Data Set ..");
+//
+//						ReaderResource myTrainRes = new ReaderResource(
+//								dbpediaResources, rdfTag, rdfTagPrefix);
+//
+//						ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
+//						myDBPReader.openInput(myTrainRes);
+//
+//						HashMap<String, String> myDBPValues = myDBPReader
+//								.readInput();
+//
+//						TrainingsDataSet myTrainingsData = new TrainingsDataSet();
+//						myTrainingsData.create(myTestData.getWikiMarkUpList(),
+//								myDBPValues);
+//						myDBPReader.close();
+//						myTrainingsData.writeOutputToFile(
+//								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
+//										+ wikiListName + "_" + rdfTag + ".txt",
+//								myTrainingsData.toString());
+//
+//						System.out.println("done!");					}
 				}
 			}
 

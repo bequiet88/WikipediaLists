@@ -22,6 +22,10 @@ public abstract class DataSet {
 
 	/** The DBPedia instance (key) and attribute (value) map */
 	HashMap<String, String> dbpediaValues = null;
+	
+	/** The First Table of the JPWL as List<List<String>> */
+	List<List<String>> firstTable = null;
+
 
 	/**
 	 * Creates the data set.
@@ -101,6 +105,26 @@ public abstract class DataSet {
 	 */
 	public void setWikiMarkUpList(List<String> wikiMarkUpList) {
 		this.annotWikiMarkUpList = wikiMarkUpList;
+	}
+	
+
+	/**
+	 * Gets the first table.
+	 * 
+	 * @return the first table
+	 */
+	public List<List<String>> getFirstTable() {
+		return firstTable;
+	}
+
+	/**
+	 * Sets the first table.
+	 * 
+	 * @param firstTable
+	 *            the generated table as List<List<String>>
+	 */
+	public void setFirstTable(List<List<String>> firstTable) {
+		this.firstTable = firstTable;
 	}
 
 }

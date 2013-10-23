@@ -45,7 +45,7 @@ public class ExampleDBpedia1
         			+"PREFIX dbpprop: <http://dbpedia.org/property/>"
         			+"PREFIX dbpedia: <http://dbpedia.org/>"
         			+"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
-        			+"PREFIX dbo: <http://dbpedia.org/ontology/>";
+        			+"PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>";
         	
         	
             String queryStr = prefix + 
@@ -57,7 +57,9 @@ public class ExampleDBpedia1
             		"SELECT * WHERE {"
                     //+"<http://dbpedia.org/resource/John_de_Warenne,_7th_Earl_of_Surrey> foaf:name ?name ."
             		//                 +"<http://dbpedia.org/resource/James_Baldwin> dbpprop:dateOfBirth ?dob. }";
-                    +"<http://dbpedia.org/resource/Henry_FitzHugh,_1st_Baron_FitzHugh> dbpprop:title ?title. }";
+                    //+"<http://dbpedia.org/resource/Henry_FitzHugh,_1st_Baron_FitzHugh> dbpedia:startDate ?title. }";
+            		+"<http://dbpedia.org/resource/Matthew_McCauley_(politician)> dbpprop:name $date. }";
+            		
             /*
              * Example 1
              */
