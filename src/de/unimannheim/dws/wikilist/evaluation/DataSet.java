@@ -33,9 +33,11 @@ public abstract class DataSet {
 	 * @param wikiMarkUpList
 	 *            the wiki mark up list
 	 */
-	public abstract void create(List<String> wikiMarkUpList,
+	public abstract void create(DataSet dataSet,
 			HashMap<String, String> dbpediaValues) throws Exception;
 
+
+	
 	/**
 	 * To string.
 	 * 
@@ -107,7 +109,6 @@ public abstract class DataSet {
 		this.annotWikiMarkUpList = wikiMarkUpList;
 	}
 	
-
 	/**
 	 * Gets the first table.
 	 * 
@@ -126,5 +127,6 @@ public abstract class DataSet {
 	public void setFirstTable(List<List<String>> firstTable) {
 		this.firstTable = firstTable;
 	}
+
 
 }

@@ -45,6 +45,7 @@ public class CopyOfWikiList {
 	public static int columnInstance = -1;
 	public static String captureGroup = "";
 	public static String regexAttribute = "";
+	public static int columnPosition = 0;
 
 	/**
 	 * @param args
@@ -61,9 +62,8 @@ public class CopyOfWikiList {
 
 			if (true) {
 				/*
-				 * Read List of Instances
-				 * Read list of attributes available
-				 * in one list of instances
+				 * Read List of Instances Read list of attributes available in
+				 * one list of instances
 				 */
 				System.out.println("Read table list ..");
 
@@ -87,7 +87,6 @@ public class CopyOfWikiList {
 				List<List<String>> myInstancesList = myInstancesReader
 						.readInput();
 				myInstancesReader.close();
-				// List<String> myNobleList = myInstancesList.get(0);
 
 				System.out.println("done!");
 
@@ -107,7 +106,8 @@ public class CopyOfWikiList {
 					wikiListName = wikiListURL.replace(
 							"http://en.wikipedia.org/wiki/", "");
 
-					System.out.println("Start processing of table " + wikiListName);
+					System.out.println("Start processing of table "
+							+ wikiListName);
 
 					List<String> dbpediaResources = new ArrayList<String>();
 
@@ -128,15 +128,16 @@ public class CopyOfWikiList {
 					}
 
 					/*
-					 * Read list of DBPedia Attributes ambiguously
+					 * Read list of DBPedia Attributes which are clear without
+					 * ambiguity
 					 */
 					try {
-						columnInstance = Integer.parseInt(list.get(4));
+						columnInstance = Integer.parseInt(list.get(4)) - 1;
 					} catch (NumberFormatException e) {
 						System.out
 								.println("For table "
 										+ wikiListName
-										+ " no instance column was set ambiguously. Aborting the processing of this table.");
+										+ "'s instance column was set ambiguously. Aborting the processing of this table.");
 						continue;
 					}
 
@@ -153,13 +154,21 @@ public class CopyOfWikiList {
 							|| dbpediaAttributes.size() == 0)
 						continue;
 
+					/*
+					 * Reset column counter.
+					 */
+					columnPosition = 0;
+
 					for (String string : dbpediaAttributes) {
 
-						
 						// TODO: Implement new logic
-						
-						System.out.println("Start processing of attribute " + string);
-						
+
+						if (columnPosition == columnInstance)
+							continue;
+
+						System.out.println("Start processing of attribute "
+								+ string);
+
 						String[] dbpediaAttribute = string.split(":");
 						rdfTag = dbpediaAttribute[1];
 						rdfTagPrefix = dbpediaAttribute[0];
@@ -177,10 +186,11 @@ public class CopyOfWikiList {
 						myWikiReader.openInput(myTestRes);
 
 						TestDataSet myTestData = new TestDataSet();
-						myTestData.create(myWikiReader.readInput(), null);
-						
-						myTestData.setFirstTable(ProcessTable.parseFirstTable(myTestData.toString()));
-						
+						myTestData.setWikiMarkUpList(myWikiReader.readInput());
+
+						myTestData.setFirstTable(ProcessTable
+								.parseFirstTable(myTestData.toString()));
+
 						myTestData.writeOutputToFile(
 								"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
 										+ wikiListName + "_" + rdfTag + ".txt",
@@ -189,21 +199,24 @@ public class CopyOfWikiList {
 
 						System.out.println("done!");
 
-//						/*
-//						 * Obtain Gold Standard Data Set with JWPL and Regex
-//						 * TODO: Work with columns (may use JWPL library to
-//						 * access a specific column
-//						 */
-//						System.out.println("Obtain Gold Data Set ..");
-//
-//						GoldDataSet myGoldData = new GoldDataSet();
-//						myGoldData.create(myTestData.getWikiMarkUpList(), null);
-//
-//						System.out.println("done!");
+						// /*
+						// * Obtain Gold Standard Data Set with JWPL and Regex
+						// * TODO: Work with columns (may use JWPL library to
+						// * access a specific column
+						// */
+						// System.out.println("Obtain Gold Data Set ..");
+						//
+						// GoldDataSet myGoldData = new GoldDataSet();
+						// myGoldData.create(myTestData.getWikiMarkUpList(),
+						// null);
+						//
+						// System.out.println("done!");
 
-						/*
-						 * Obtain Evaluation Data Set with JWPL and DBPedia Values merged
-						 */
+						/****************************************************************
+						 * Obtain Evaluation Data Set with JWPL and DBPedia
+						 * Values merged
+						 ****************************************************************/
+
 						System.out.println("Obtain Evaluation Data Set ..");
 
 						ReaderResource myEvalRes = new ReaderResource(
@@ -211,195 +224,31 @@ public class CopyOfWikiList {
 
 						ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
 						myDBPReader.openInput(myEvalRes);
-						myDBPReader.close();
 
 						HashMap<String, String> myDBPValues = myDBPReader
 								.readInput();
 						myDBPReader.close();
 
 						EvaluationDataSet myEvalData = new EvaluationDataSet();
-						myEvalData.create(myTestData.getWikiMarkUpList(),
-								myDBPValues);
+						myEvalData.create(myTestData, myDBPValues);
 
-						myEvalData.writeOutputToFile(
+						List<List<String>> myEvalMatrix = myEvalData
+								.getEvalMatrix();
+
+						myEvalData.writeOutputToCsv(
 								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/evaluation_"
-										+ wikiListName + "_" + rdfTag + ".txt",
-								myEvalData.toString());
+										+ wikiListName + "_" + rdfTag + ".csv",
+								myEvalMatrix);
 
-						System.out.println("done!");					}
+						/*
+						 * TODO: Prepare RDF Output
+						 */
 
-						
-						
-						
-//						/*
-//						 * Obtain Training Data Set with JWPL and DBPedia Values
-//						 */
-//						System.out.println("Obtain Training Data Set ..");
-//
-//						ReaderResource myTrainRes = new ReaderResource(
-//								dbpediaResources, rdfTag, rdfTagPrefix);
-//
-//						ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
-//						myDBPReader.openInput(myTrainRes);
-//
-//						HashMap<String, String> myDBPValues = myDBPReader
-//								.readInput();
-//
-//						TrainingsDataSet myTrainingsData = new TrainingsDataSet();
-//						myTrainingsData.create(myTestData.getWikiMarkUpList(),
-//								myDBPValues);
-//						myDBPReader.close();
-//						myTrainingsData.writeOutputToFile(
-//								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
-//										+ wikiListName + "_" + rdfTag + ".txt",
-//								myTrainingsData.toString());
-//
-//						System.out.println("done!");					}
+						System.out.println("done!");
+						columnPosition++;
+					}
 				}
 			}
-
-			/*
-			 * List of used regexp: African American Writers - birthDate:
-			 * (1[0-9]{3}|2[0-9]{3}) List of Peers 1330-1339 - title:
-			 * (\[[A-Za-z0-9,' ]*\|)
-			 */
-
-			File dataDir = new File(
-					"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
-							+ wikiListName + "_" + rdfTag + ".txt");
-			File testDir = new File(
-					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
-							+ wikiListName + "_" + rdfTag + ".txt");
-
-			/*****************************
-			 * MinorThird
-			 *****************************/
-
-			/*
-			 * Load Training Data into MinorThird
-			 */
-
-			TextBaseLoader loader = new TextBaseLoader(
-					TextBaseLoader.DOC_PER_LINE, TextBaseLoader.USE_XML);
-			TextBase base = loader.load(dataDir);
-			Iterator<Span> spanIter = base.documentSpanIterator();
-
-			System.out.println("Spans of Text Base\n");
-
-			while (spanIter.hasNext()) {
-				Span currSpan = spanIter.next();
-
-				System.out.println(currSpan.asString() + " "
-						+ currSpan.getDocumentId());
-
-			}
-
-			System.out
-					.println("Print Labels\n" + loader.getLabels().toString());
-			BasicTextLabels labels = (BasicTextLabels) loader.getLabels();
-
-			// labels.saveAs(new File(
-			// "D:/Studium/Classes_Sem3/Seminar/Codebase/labels_title.txt"),
-			// "Minorthird TextLabels");
-			// TextBaseEditor editor = TextBaseEditor.edit(labels, null);
-			// editor.getViewer().getGuessBox().setSelectedItem("title");
-
-			/*
-			 * Load Test Data into MinorThird
-			 */
-
-			TextBaseLoader testLoader = new TextBaseLoader(
-					TextBaseLoader.DOC_PER_LINE, TextBaseLoader.USE_XML);
-			testLoader.load(testDir);
-			BasicTextLabels testLabels = (BasicTextLabels) loader.getLabels();
-
-			/*
-			 * Instantiate an Annotator
-			 */
-
-			long startTime = System.nanoTime();
-			AnnotatorTeacher annotTeacher = new TextLabelsAnnotatorTeacher(
-					labels, "title");
-
-			AnnotatorLearner annotLearner = new CRFAnnotatorLearner();
-
-			Annotator annot = annotTeacher.train(annotLearner);
-			long endTime = System.nanoTime();
-
-			long elapsedTime = endTime - startTime;
-
-			double elapsedTimeSec = elapsedTime / 1000000000;
-
-			/*
-			 * Create a Splitter
-			 */
-
-			Splitter<Span> crossValSplitter = new CrossValSplitter<Span>(3);
-
-			/*
-			 * Run Experiment
-			 */
-
-			TextLabelsExperiment experiment = new TextLabelsExperiment(labels,
-					crossValSplitter, annotLearner, "title", "newTitles");
-
-			/*
-			 * Get Model Evaluation
-			 */
-
-			experiment.doExperiment();
-			new ViewerFrame("Annotation Learner Experiment", experiment.toGUI());
-			ExtractionEvaluation eval = experiment.getEvaluation();
-
-			/*
-			 * Apply model to Testdata Set
-			 */
-
-			annot.annotate(testLabels);
-
-			System.out.println("\nPredicted Entries:\n");
-
-			int counter = 0;
-
-			for (Iterator<Span> i = testLabels.instanceIterator("_prediction"); i
-					.hasNext();) {
-				Span span = i.next();
-				System.out.println(span.toString());
-				counter++;
-			}
-
-			System.out.println("Number of predicted attributes: " + counter);
-			System.out.println("Elapsed Time for Training (sec)"
-					+ elapsedTimeSec);
-
-			// myTestData.setNoOfMarkedAttributes(counter);
-
-			/*
-			 * Evaluation
-			 * 
-			 * TODO: Evaluate against Gold Data Set a) New information found b)
-			 * Higher quality (literal information becoming URI information) c)
-			 * No new data found
-			 * 
-			 * TODO: Also save properties of classification run (eval) such as:
-			 * Learner name, time elapsed, confusion matrix, f-score
-			 */
-
-			/*
-			 * TODO: Prepare RDF Output
-			 */
-
-			// Load your data into a TextBase (extractor) or a DataSet
-			// (classifier).
-			// Instantiate an AnnotatorTeacher (extractor) or ClassifierTeacher
-			// (classifier).
-			// Configure the teacher.
-			// Instantiate an instance of AnnotatorLearner (extractor) or
-			// ClassifierLearner (classifier) the represents the desired learner
-			// algorithm.
-			// Configure the learner.
-			// Call teacher.train (learner) to create a trained extractor or
-			// classifier.
 
 		} catch (IOException e) {
 			e.printStackTrace();

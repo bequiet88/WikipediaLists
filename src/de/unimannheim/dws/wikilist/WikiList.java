@@ -19,14 +19,11 @@ import de.unimannheim.dws.wikilist.reader.ListPageWikiMarkupReader;
 import de.unimannheim.dws.wikilist.reader.ReaderResource;
 import edu.cmu.minorthird.classify.Splitter;
 import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
-import edu.cmu.minorthird.text.Annotator;
 import edu.cmu.minorthird.text.BasicTextLabels;
 import edu.cmu.minorthird.text.Span;
 import edu.cmu.minorthird.text.TextBase;
 import edu.cmu.minorthird.text.TextBaseLoader;
 import edu.cmu.minorthird.text.learn.AnnotatorLearner;
-import edu.cmu.minorthird.text.learn.AnnotatorTeacher;
-import edu.cmu.minorthird.text.learn.TextLabelsAnnotatorTeacher;
 import edu.cmu.minorthird.text.learn.experiments.ExtractionEvaluation;
 import edu.cmu.minorthird.text.learn.experiments.TextLabelsExperiment;
 import edu.cmu.minorthird.ui.Recommended.CRFAnnotatorLearner;
@@ -38,7 +35,6 @@ import edu.cmu.minorthird.ui.Recommended.VPCMMLearner;
 import edu.cmu.minorthird.ui.Recommended.VPHMMLearner;
 import edu.cmu.minorthird.ui.Recommended.VPSMMLearner;
 import edu.cmu.minorthird.ui.Recommended.VPSMMLearner2;
-import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 public class WikiList {
 
@@ -59,7 +55,7 @@ public class WikiList {
 	 */
 	public static void main(String[] args) {
 
-		Logger log = Logger.getLogger(WikiList.class);
+		//Logger log = Logger.getLogger(WikiList.class);
 
 		/*****************************
 		 * Data Collection
@@ -104,69 +100,64 @@ public class WikiList {
 
 			System.out.println("done!");
 
-			if (false) {
-				/*
-				 * Obtain Test Data Set (plain Wiki Mark Up)
-				 */
-				System.out.println("Obtain Test Data Set ..");
+			/*
+			 * Obtain Test Data Set (plain Wiki Mark Up)
+			 */
+			System.out.println("Obtain Test Data Set ..");
 
-				ReaderResource myTestRes = new ReaderResource(wikiListName);
+			ReaderResource myTestRes = new ReaderResource(wikiListName);
 
-				ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
-				myWikiReader.openInput(myTestRes);
+			ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
+			myWikiReader.openInput(myTestRes);
 
-				TestDataSet myTestData = new TestDataSet();
-				myTestData.create(myWikiReader.readInput(), null);
-				myTestData.writeOutputToFile(
-						"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
-								+ wikiListName + "_" + rdfTag + ".txt",
-						myTestData.toString());
-				myWikiReader.close();
+			TestDataSet myTestData = new TestDataSet();
+			myTestData.setWikiMarkUpList(myWikiReader.readInput());
+			myTestData.writeOutputToFile(
+					"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
+							+ wikiListName + "_" + rdfTag + ".txt",
+					myTestData.toString());
+			myWikiReader.close();
 
-				System.out.println("done!");
+			System.out.println("done!");
 
-				/*
-				 * Obtain Gold Standard Data Set with JWPL and Regex TODO: Work
-				 * with columns (may use JWPL library to access a specific
-				 * column
-				 */
-				System.out.println("Obtain Gold Data Set ..");
+			/*
+			 * Obtain Gold Standard Data Set with JWPL and Regex TODO: Work with
+			 * columns (may use JWPL library to access a specific column
+			 */
+			System.out.println("Obtain Gold Data Set ..");
 
-				GoldDataSet myGoldData = new GoldDataSet();
-				myGoldData.create(myTestData.getWikiMarkUpList(), null);
+			GoldDataSet myGoldData = new GoldDataSet();
+			myGoldData.create(myTestData, null);
 
-				System.out.println("done!");
+			System.out.println("done!");
 
-				/*
-				 * Obtain Training Data Set with JWPL and DBPedia Values
-				 */
-				System.out.println("Obtain Training Data Set ..");
+			/*
+			 * Obtain Training Data Set with JWPL and DBPedia Values
+			 */
+			System.out.println("Obtain Training Data Set ..");
 
-				ReaderResource myTrainRes = new ReaderResource(
-						dbpediaResources, rdfTag, rdfTagPrefix);
+			ReaderResource myTrainRes = new ReaderResource(dbpediaResources,
+					rdfTag, rdfTagPrefix);
 
-				ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
-				myDBPReader.openInput(myTrainRes);
+			ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
+			myDBPReader.openInput(myTrainRes);
 
-				HashMap<String, String> myDBPValues = myDBPReader.readInput();
+			HashMap<String, String> myDBPValues = myDBPReader.readInput();
 
-				TrainingsDataSet myTrainingsData = new TrainingsDataSet();
-				myTrainingsData.create(myTestData.getWikiMarkUpList(),
-						myDBPValues);
-				myDBPReader.close();
-				myTrainingsData.writeOutputToFile(
-						"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
-								+ wikiListName + "_" + rdfTag + ".txt",
-						myTrainingsData.toString());
+			TrainingsDataSet myTrainingsData = new TrainingsDataSet();
+			myTrainingsData.create(myTestData, myDBPValues);
+			myDBPReader.close();
+			myTrainingsData.writeOutputToFile(
+					"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/training_"
+							+ wikiListName + "_" + rdfTag + ".txt",
+					myTrainingsData.toString());
 
-				System.out.println("done!");
+			System.out.println("done!");
 
-				System.out.println("Marked attributes in Gold: "
-						+ myGoldData.getNoOfMarkedAttributes()
-						+ " - Marked attributes in Training: "
-						+ myTrainingsData.getNoOfMarkedAttributes());
-
-			}
+			System.out.println("Marked attributes in Gold: "
+					+ myGoldData.getNoOfMarkedAttributes()
+					+ " - Marked attributes in Training: "
+					+ myTrainingsData.getNoOfMarkedAttributes());
 
 			/*
 			 * List of used regexp: African American Writers - birthDate:
@@ -221,8 +212,7 @@ public class WikiList {
 			TextBaseLoader testLoader = new TextBaseLoader(
 					TextBaseLoader.DOC_PER_LINE, TextBaseLoader.USE_XML);
 			testLoader.load(testDir);
-			BasicTextLabels testLabels = (BasicTextLabels) loader.getLabels();
-
+		
 			/*
 			 * Instantiate an Annotator
 			 */
@@ -239,18 +229,18 @@ public class WikiList {
 			annotLearners.add(new VPHMMLearner());
 			annotLearners.add(new VPSMMLearner());
 
-			
 			for (AnnotatorLearner annotLearner : annotLearners) {
-//				long startTime = System.nanoTime();		
-//				AnnotatorTeacher annotTeacher = new TextLabelsAnnotatorTeacher(
-//						labels, "title");
-//
-//				Annotator annot = annotTeacher.train(annotLearner);
-//				long endTime = System.nanoTime();
-//
-//				long elapsedTime = endTime - startTime;
-//
-//				double elapsedTimeSec = elapsedTime / 1000000000;
+				// long startTime = System.nanoTime();
+				// AnnotatorTeacher annotTeacher = new
+				// TextLabelsAnnotatorTeacher(
+				// labels, "title");
+				//
+				// Annotator annot = annotTeacher.train(annotLearner);
+				// long endTime = System.nanoTime();
+				//
+				// long elapsedTime = endTime - startTime;
+				//
+				// double elapsedTimeSec = elapsedTime / 1000000000;
 
 				/*
 				 * Create a Splitter
@@ -262,64 +252,63 @@ public class WikiList {
 				 * Run Experiment
 				 */
 
-				TextLabelsExperiment experiment = new TextLabelsExperiment(labels,
-						crossValSplitter, annotLearner, "title", "newTitles");
+				TextLabelsExperiment experiment = new TextLabelsExperiment(
+						labels, crossValSplitter, annotLearner, "title",
+						"newTitles");
 
 				/*
 				 * Get Model Evaluation
 				 */
 
 				experiment.doExperiment();
-				//new ViewerFrame("Annotation Learner Experiment", experiment.toGUI());
+				// new ViewerFrame("Annotation Learner Experiment",
+				// experiment.toGUI());
 				ExtractionEvaluation eval = experiment.getEvaluation();
-				
+
 				List<String> result = new ArrayList<String>();
 				result.add(annotLearner.getClass().toString());
-				result.add(""+eval.spanPrecision());
-				result.add(""+eval.spanRecall());
-				result.add(""+eval.spanF1());
-				result.add(""+eval.tokenPrecision());
-				result.add(""+eval.tokenRecall());
-				result.add(""+eval.tokenF1());
+				result.add("" + eval.spanPrecision());
+				result.add("" + eval.spanRecall());
+				result.add("" + eval.spanF1());
+				result.add("" + eval.tokenPrecision());
+				result.add("" + eval.tokenRecall());
+				result.add("" + eval.tokenF1());
 				results.add(result);
 			}
-			
-			
+
 			for (List<String> result : results) {
 				System.out.println("New List starts.");
-				System.out.println("Name: "+result.get(0));
-				System.out.println("Span Prec: "+result.get(1));
-				System.out.println("Span Recall: "+result.get(2));
-				System.out.println("Span F1: "+result.get(3));
-				System.out.println("Token Prec: "+result.get(4));
-				System.out.println("Token Recall: "+result.get(5));
-				System.out.println("Token F1: "+result.get(6));
-	
-			}
-			
-			
-			
+				System.out.println("Name: " + result.get(0));
+				System.out.println("Span Prec: " + result.get(1));
+				System.out.println("Span Recall: " + result.get(2));
+				System.out.println("Span F1: " + result.get(3));
+				System.out.println("Token Prec: " + result.get(4));
+				System.out.println("Token Recall: " + result.get(5));
+				System.out.println("Token F1: " + result.get(6));
 
-//			/*
-//			 * Apply model to Testdata Set
-//			 */
-//
-//			annot.annotate(testLabels);
-//
-//			System.out.println("\nPredicted Entries:\n");
-//
-//			int counter = 0;
-//
-//			for (Iterator<Span> i = testLabels.instanceIterator("_prediction"); i
-//					.hasNext();) {
-//				Span span = i.next();
-//				System.out.println(span.toString());
-//				counter++;
-//			}
-//
-//			System.out.println("Number of predicted attributes: " + counter);
-//			System.out.println("Elapsed Time for Training (sec)"
-//					+ elapsedTimeSec);
+			}
+
+			// /*
+			// * Apply model to Testdata Set
+			// */
+			//
+			// annot.annotate(testLabels);
+			//
+			// System.out.println("\nPredicted Entries:\n");
+			//
+			// int counter = 0;
+			//
+			// for (Iterator<Span> i =
+			// testLabels.instanceIterator("_prediction"); i
+			// .hasNext();) {
+			// Span span = i.next();
+			// System.out.println(span.toString());
+			// counter++;
+			// }
+			//
+			// System.out.println("Number of predicted attributes: " + counter);
+			// System.out.println("Elapsed Time for Training (sec)"
+			// + elapsedTimeSec);
 
 			// myTestData.setNoOfMarkedAttributes(counter);
 

@@ -1,7 +1,6 @@
 package de.unimannheim.dws.wikilist.evaluation;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class TestDataSet extends DataSet {
 
@@ -9,11 +8,10 @@ public class TestDataSet extends DataSet {
 	 * @see de.unimannheim.dws.wikilist.evaluation.DataSet#create(java.util.List)
 	 */
 	@Override
-	public void create(List<String> wikiMarkUpList, HashMap<String, String> dbpValues) {
+	public void create(DataSet dataSet, HashMap<String, String> dbpValues) {
 
-		this.annotWikiMarkUpList = wikiMarkUpList;
+		this.annotWikiMarkUpList = dataSet.getWikiMarkUpList();
 		
 
 	}
-
 }
