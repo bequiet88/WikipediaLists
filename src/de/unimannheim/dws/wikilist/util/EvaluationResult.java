@@ -118,7 +118,35 @@ public class EvaluationResult {
 		this.rdfTriples = rdfTuples;
 	}
 	
+	public int getNoOfWikiUri() {
+		return noOfDBPEmptyWikiUri+noOfDBPUriWikiUri+noOfDBPLiteralWikiUri;
+	}
 	
+	public int getNoOfWikiLiteral() {
+		return noOfDBPEmptyWikiLiteral+noOfDBPUriWikiLiteral+noOfDBPLiteralWikiLiteral;
+	}
+	
+	public int getNoOfWikiEmpty() {
+		return noOfDBPEmptyWikiEmpty+noOfDBPUriWikiEmpty+noOfDBPLiteralWikiEmpty;
+	}
+	
+	public int getNoOfDBPediaUri() {
+		return noOfDBPUriWikiLiteral+noOfDBPUriWikiEmpty+noOfDBPUriWikiUri;
+	}
+
+	public int getNoOfDBPediaLiteral() {
+		return noOfDBPLiteralWikiLiteral+noOfDBPLiteralWikiEmpty+noOfDBPLiteralWikiUri;
+	}
+
+	public int getNoOfDBPediaEmpty() {
+		return noOfDBPEmptyWikiLiteral+noOfDBPEmptyWikiEmpty+noOfDBPEmptyWikiUri;
+	}
+	
+	public int getNoOfTotal() {
+		return getNoOfDBPediaEmpty()+getNoOfDBPediaLiteral()+getNoOfDBPediaUri();
+	}
+
+
 	
 	
 

@@ -210,6 +210,60 @@ public class EvaluationHelper {
 					result.noOfDBPLiteralWikiEmpty++;
 					matchFound = true;
 				}
+				
+				/*
+				 * In case neither a Uri nor a literal is present in DBPedia Entry, process as DBPedia Empty
+				 */
+				
+
+				/*
+				 * Check DBPedia Empty and Wiki Uri
+				 */
+
+				if (!matchFound
+						&& tableRow.get(CopyOfWikiList.columnPosition)
+								.startsWith("[[")) {
+					result.noOfDBPEmptyWikiUri++;
+					matchFound = true;
+					
+					
+					/*
+					 * Add match to RDF Triple List
+					 */
+					List<String> rdfTriple = new ArrayList<String>();
+					rdfTriple.add(link);
+					rdfTriple.add(CopyOfWikiList.rdfTagPrefix+":"+CopyOfWikiList.rdfTag);
+					rdfTriple.add(getDBPediaLinkFromWikiLink(tableRow
+							.get(CopyOfWikiList.columnPosition)));
+					result.rdfTriples.add(rdfTriple);
+				}
+				
+				/*
+				 * Check DBPedia Empty and Wiki Literal
+				 */
+				else if (!matchFound) {
+					result.noOfDBPEmptyWikiLiteral++;
+					matchFound = true;
+					
+					/*
+					 * Add match to RDF Triple List
+					 */
+					List<String> rdfTriple = new ArrayList<String>();
+					rdfTriple.add(link);
+					rdfTriple.add(CopyOfWikiList.rdfTagPrefix+":"+CopyOfWikiList.rdfTag);
+					rdfTriple.add(tableRow
+							.get(CopyOfWikiList.columnPosition));
+					result.rdfTriples.add(rdfTriple);
+				}
+				
+				/*
+				 * Everything that reaches this code is dealt as DBPedia Empty and Wiki Empty
+				 */
+				else {
+					result.noOfDBPEmptyWikiEmpty++;
+					matchFound = true;
+				}
+				
 			}
 
 		}

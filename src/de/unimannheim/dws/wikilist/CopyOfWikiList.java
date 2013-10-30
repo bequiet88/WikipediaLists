@@ -1,14 +1,18 @@
 package de.unimannheim.dws.wikilist;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 import de.unimannheim.dws.wikilist.evaluation.EvaluationDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TestDataSet;
@@ -17,20 +21,6 @@ import de.unimannheim.dws.wikilist.reader.ListPageDBPediaReader;
 import de.unimannheim.dws.wikilist.reader.ListPageWikiMarkupReader;
 import de.unimannheim.dws.wikilist.reader.ReaderResource;
 import de.unimannheim.dws.wikilist.util.ProcessTable;
-import edu.cmu.minorthird.classify.Splitter;
-import edu.cmu.minorthird.classify.experiments.CrossValSplitter;
-import edu.cmu.minorthird.text.Annotator;
-import edu.cmu.minorthird.text.BasicTextLabels;
-import edu.cmu.minorthird.text.Span;
-import edu.cmu.minorthird.text.TextBase;
-import edu.cmu.minorthird.text.TextBaseLoader;
-import edu.cmu.minorthird.text.learn.AnnotatorLearner;
-import edu.cmu.minorthird.text.learn.AnnotatorTeacher;
-import edu.cmu.minorthird.text.learn.TextLabelsAnnotatorTeacher;
-import edu.cmu.minorthird.text.learn.experiments.ExtractionEvaluation;
-import edu.cmu.minorthird.text.learn.experiments.TextLabelsExperiment;
-import edu.cmu.minorthird.ui.Recommended.CRFAnnotatorLearner;
-import edu.cmu.minorthird.util.gui.ViewerFrame;
 
 public class CopyOfWikiList {
 
@@ -44,7 +34,6 @@ public class CopyOfWikiList {
 	public static String regexInstances = "";
 	public static int columnInstance = -1;
 	public static String captureGroup = "";
-	public static String regexAttribute = "";
 	public static int columnPosition = 0;
 
 	/**
@@ -53,7 +42,7 @@ public class CopyOfWikiList {
 	 */
 	public static void main(String[] args) {
 
-		Logger log = Logger.getLogger(CopyOfWikiList.class);
+//		Logger log = Logger.getLogger(CopyOfWikiList.class);
 
 		/*****************************
 		 * Data Collection
@@ -172,7 +161,6 @@ public class CopyOfWikiList {
 						String[] dbpediaAttribute = string.split(":");
 						rdfTag = dbpediaAttribute[1];
 						rdfTagPrefix = dbpediaAttribute[0];
-						regexAttribute = "(\\[[A-Za-z0-9,' ]*\\|)";
 
 						/*
 						 * Obtain plain Wiki Mark Up (formerly Test Data Set)
@@ -235,15 +223,57 @@ public class CopyOfWikiList {
 						List<List<String>> myEvalMatrix = myEvalData
 								.getEvalMatrix();
 
+						/*
+						 * Write Result Matrix to file
+						 */
+						
 						myEvalData.writeOutputToCsv(
 								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/evaluation_"
 										+ wikiListName + "_" + rdfTag + ".csv",
 								myEvalMatrix);
 
 						/*
-						 * TODO: Prepare RDF Output
+						 * Prepare RDF Output
 						 */
+						List<List<String>> myRdfTriples = myEvalData.getRdfTriples();
+						
+						List<Model> newRdfTriples = new ArrayList<Model>();
+						
+						if(myRdfTriples != null) {
+						
+						for (List<String> list2 : myRdfTriples) {
 
+							
+							// Create an empty graph
+							Model model = ModelFactory.createDefaultModel();
+
+							// Create the resource
+							Resource postcon = model.createResource(list2.get(0));
+
+							// Create the predicate (property)
+							Property value = model.createProperty(list2.get(1),
+									"value");
+
+							// Add the properties with associated values (objects)
+							postcon.addProperty(value,
+									list2.get(2));
+//							postcon.addProperty(related,
+//									"http://burningbird.net/articles/monsters2.htm");
+
+							// Print RDF/XML of model to system output
+							model.write(new PrintWriter(System.out));
+							newRdfTriples.add(model);
+						}}
+						
+						/*
+						 * Write new RDF Triples to File
+						 */
+						myEvalData.writeOutputToCsv(
+								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/evaluation_"
+										+ wikiListName + "_" + rdfTag + "_newTriples.csv",
+								myRdfTriples);
+
+						
 						System.out.println("done!");
 						columnPosition++;
 					}
