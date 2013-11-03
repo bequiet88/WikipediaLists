@@ -42,7 +42,7 @@ public class CopyOfWikiList {
 	 */
 	public static void main(String[] args) {
 
-//		Logger log = Logger.getLogger(CopyOfWikiList.class);
+		// Logger log = Logger.getLogger(CopyOfWikiList.class);
 
 		/*****************************
 		 * Data Collection
@@ -57,7 +57,7 @@ public class CopyOfWikiList {
 				System.out.println("Read table list ..");
 
 				ReaderResource myCSVRes = new ReaderResource(
-						"D:/Studium/Classes_Sem3/Seminar/Codebase/sample_lists.csv");
+						"C:/Users/d049650/Documents/Uni_Workspace/SampleInstances.csv");
 
 				ListPageCSVReader myListsReader = new ListPageCSVReader();
 				myListsReader.openInput(myCSVRes);
@@ -66,18 +66,18 @@ public class CopyOfWikiList {
 
 				System.out.println("done!");
 
-				System.out.println("Read instance list ..");
-
-				ReaderResource myCSVRes2 = new ReaderResource(
-						"D:/Studium/Classes_Sem3/Seminar/Codebase/Links_to_Instances.csv");
-
-				ListPageCSVReader myInstancesReader = new ListPageCSVReader();
-				myInstancesReader.openInput(myCSVRes2);
-				List<List<String>> myInstancesList = myInstancesReader
-						.readInput();
-				myInstancesReader.close();
-
-				System.out.println("done!");
+//				System.out.println("Read instance list ..");
+//
+//				ReaderResource myCSVRes2 = new ReaderResource(
+//						"C:/Users/d049650/Documents/Uni_Workspace/LinkstoInstances.csv");
+//
+//				ListPageCSVReader myInstancesReader = new ListPageCSVReader();
+//				myInstancesReader.openInput(myCSVRes2);
+//				List<List<String>> myInstancesList = myInstancesReader
+//						.readInput();
+//				myInstancesReader.close();
+//
+//				System.out.println("done!");
 
 				/*
 				 * General settings for this run
@@ -97,31 +97,40 @@ public class CopyOfWikiList {
 
 					System.out.println("Start processing of table "
 							+ wikiListName);
-
-					List<String> dbpediaResources = new ArrayList<String>();
-
+					
 					/*
-					 * Find corresponding list of DBPedia instances
+					 * Obtain plain Wiki Mark Up (formerly Test Data Set)
 					 */
+					System.out.println("Obtain Plain Wiki Mark Up ..");
 
-					for (List<String> instanceList : myInstancesList) {
+					ReaderResource myTestRes = new ReaderResource(
+							wikiListName);
 
-						if (instanceList.get(1).equals(wikiListURL)) {
-							regexInstances = instanceList.get(1);
-							captureGroup = instanceList.get(2);
-							for (int i = 3; i < instanceList.size(); i++) {
-								dbpediaResources.add(instanceList.get(i));
-							}
+					ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
+					myWikiReader.openInput(myTestRes);
 
-						}
-					}
+					TestDataSet myTestData = new TestDataSet();
+					myTestData.setWikiMarkUpList(myWikiReader.readInput());
+
+					myTestData.setFirstTable(ProcessTable
+							.parseFirstTable(myTestData.toString()));
+
+					myTestData.writeOutputToFile(
+							"C:/Users/d049650/Documents/Uni_Workspace/results/wikilist_"
+									+ wikiListName + ".txt",
+							myTestData.toString());
+					myWikiReader.close();
+
+					System.out.println("done!");
+					
+					
 
 					/*
 					 * Read list of DBPedia Attributes which are clear without
 					 * ambiguity
 					 */
 					try {
-						columnInstance = Integer.parseInt(list.get(4)) - 1;
+						columnInstance = Integer.parseInt(list.get(5)) - 1;
 					} catch (NumberFormatException e) {
 						System.out
 								.println("For table "
@@ -134,6 +143,25 @@ public class CopyOfWikiList {
 					for (int i = 6; i < list.size(); i++) {
 						dbpediaAttributes.add(list.get(i));
 					}
+					
+
+					/*
+					 * Find corresponding list of DBPedia instances
+					 */
+					List<String> dbpediaResources = ProcessTable.getColumn(myTestData.getFirstTable(), columnInstance);
+
+//
+//					for (List<String> instanceList : myInstancesList) {
+//
+//						if (instanceList.get(0).equals(wikiListURL)) {
+//							regexInstances = instanceList.get(1);
+//							captureGroup = instanceList.get(2);
+//							for (int i = 3; i < instanceList.size(); i++) {
+//								dbpediaResources.add(instanceList.get(i));
+//							}
+//
+//						}
+//					}
 
 					/*
 					 * If size > 0 iterate over the instances for each DBPedia
@@ -150,10 +178,21 @@ public class CopyOfWikiList {
 
 					for (String string : dbpediaAttributes) {
 
-						// TODO: Implement new logic
-
-						if (columnPosition == columnInstance)
+						/*
+						 * If column is empty, continue
+						 */
+						if (string == null || string.trim().equals("")) {
+							columnPosition++;
 							continue;
+						}
+						
+						/*
+						 * If column is instance column, continue
+						 */
+						if (columnPosition == columnInstance || string.equals("Column of Entity")) {
+							columnPosition++;
+							continue;
+						}
 
 						System.out.println("Start processing of attribute "
 								+ string);
@@ -162,43 +201,6 @@ public class CopyOfWikiList {
 						rdfTag = dbpediaAttribute[1];
 						rdfTagPrefix = dbpediaAttribute[0];
 
-						/*
-						 * Obtain plain Wiki Mark Up (formerly Test Data Set)
-						 */
-						System.out.println("Obtain Plain Wiki Mark Up ..");
-
-						ReaderResource myTestRes = new ReaderResource(
-								wikiListName);
-
-						ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
-						myWikiReader.openInput(myTestRes);
-
-						TestDataSet myTestData = new TestDataSet();
-						myTestData.setWikiMarkUpList(myWikiReader.readInput());
-
-						myTestData.setFirstTable(ProcessTable
-								.parseFirstTable(myTestData.toString()));
-
-						myTestData.writeOutputToFile(
-								"D:/Studium/Classes_Sem3/Seminar/Codebase/testdata/test_"
-										+ wikiListName + "_" + rdfTag + ".txt",
-								myTestData.toString());
-						myWikiReader.close();
-
-						System.out.println("done!");
-
-						// /*
-						// * Obtain Gold Standard Data Set with JWPL and Regex
-						// * TODO: Work with columns (may use JWPL library to
-						// * access a specific column
-						// */
-						// System.out.println("Obtain Gold Data Set ..");
-						//
-						// GoldDataSet myGoldData = new GoldDataSet();
-						// myGoldData.create(myTestData.getWikiMarkUpList(),
-						// null);
-						//
-						// System.out.println("done!");
 
 						/****************************************************************
 						 * Obtain Evaluation Data Set with JWPL and DBPedia
@@ -226,54 +228,55 @@ public class CopyOfWikiList {
 						/*
 						 * Write Result Matrix to file
 						 */
-						
+
 						myEvalData.writeOutputToCsv(
-								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/evaluation_"
+								"C:/Users/d049650/Documents/Uni_Workspace/results/evaluation_"
 										+ wikiListName + "_" + rdfTag + ".csv",
 								myEvalMatrix);
 
 						/*
 						 * Prepare RDF Output
 						 */
-						List<List<String>> myRdfTriples = myEvalData.getRdfTriples();
-						
+						List<List<String>> myRdfTriples = myEvalData
+								.getRdfTriples();
+
 						List<Model> newRdfTriples = new ArrayList<Model>();
-						
-						if(myRdfTriples != null) {
-						
-						for (List<String> list2 : myRdfTriples) {
 
-							
-							// Create an empty graph
-							Model model = ModelFactory.createDefaultModel();
+						if (myRdfTriples != null) {
 
-							// Create the resource
-							Resource postcon = model.createResource(list2.get(0));
+							// for (List<String> list2 : myRdfTriples) {
+							//
+							// // Create an empty graph
+							// Model model = ModelFactory.createDefaultModel();
+							//
+							// // Create the resource
+							// Resource postcon = model.createResource(list2
+							// .get(0));
+							//
+							// // Create the predicate (property)
+							// Property value = model.createProperty(
+							// list2.get(1), "value");
+							//
+							// // Add the properties with associated values
+							// // (objects)
+							// postcon.addProperty(value, list2.get(2));
+							// // postcon.addProperty(related,
+							// //
+							// "http://burningbird.net/articles/monsters2.htm");
+							//
+							// // Print RDF/XML of model to system output
+							// model.write(new PrintWriter(System.out));
+							// newRdfTriples.add(model);
+							// }
+							/*
+							 * Write new RDF Triples to File
+							 */
+							myEvalData.writeOutputToCsv(
+									"C:/Users/d049650/Documents/Uni_Workspace/results/newTriples_"
+											+ wikiListName + "_" + rdfTag
+											+ ".csv", myRdfTriples);
+						}
 
-							// Create the predicate (property)
-							Property value = model.createProperty(list2.get(1),
-									"value");
-
-							// Add the properties with associated values (objects)
-							postcon.addProperty(value,
-									list2.get(2));
-//							postcon.addProperty(related,
-//									"http://burningbird.net/articles/monsters2.htm");
-
-							// Print RDF/XML of model to system output
-							model.write(new PrintWriter(System.out));
-							newRdfTriples.add(model);
-						}}
-						
-						/*
-						 * Write new RDF Triples to File
-						 */
-						myEvalData.writeOutputToCsv(
-								"D:/Studium/Classes_Sem3/Seminar/Codebase/traindata/evaluation_"
-										+ wikiListName + "_" + rdfTag + "_newTriples.csv",
-								myRdfTriples);
-
-						
 						System.out.println("done!");
 						columnPosition++;
 					}

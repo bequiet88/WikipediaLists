@@ -57,8 +57,8 @@ public class ExampleDBpedia1
             		"SELECT * WHERE {"
                     //+"<http://dbpedia.org/resource/John_de_Warenne,_7th_Earl_of_Surrey> foaf:name ?name ."
             		//                 +"<http://dbpedia.org/resource/James_Baldwin> dbpprop:dateOfBirth ?dob. }";
-                    //+"<http://dbpedia.org/resource/John_de_Warenne,_7th_Earl_of_Surrey> dbpprop:title ?title. }";
-            		+"<http://dbpedia.org/resource/Matthew_McCauley_(politician)> dbpprop:name $date. }";
+                    +"<http://dbpedia.org/resource/Alice_de_Lacy,_3rd_Countess_of_Lincoln> dbpprop:title ?title. }";
+            		//+"<http://dbpedia.org/resource/Matthew_McCauley_(politician)> dbpprop:name $date. }";
             		
             /*
              * Example 1

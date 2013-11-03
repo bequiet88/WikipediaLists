@@ -13,12 +13,12 @@ public class JaccardSimilarity {
 		HashSet<String> h1 = new HashSet<String>();
 		HashSet<String> h2 = new HashSet<String>();
 
-		for (String s : similar1.split("\\s+")) {
-			h1.add(s);
+		for (int i = 0; i < similar1.length(); i++) {
+			h1.add(""+similar1.charAt(i));
 		}
 		System.out.println("h1 " + h1);
-		for (String s : similar2.split("\\s+")) {
-			h2.add(s);
+		for (int i = 0; i < similar2.length(); i++) {
+			h2.add(""+similar2.charAt(i));
 		}
 		System.out.println("h2 " + h2);
 

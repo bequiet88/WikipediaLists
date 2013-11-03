@@ -22,16 +22,16 @@ public class ListPageDBPediaReader implements
 
 	/** The writer. */
 	private BufferedWriter writer = null;
-	
+
 	/** The dbp res. */
 	private ReaderResource dbpRes = null;
-	
+
 	/** The query str. */
 	private String queryStr = null;
-	
+
 	/** The query. */
 	private Query query = null;
-	
+
 	/** The qexec. */
 	private QueryExecution qexec = null;
 
@@ -46,10 +46,14 @@ public class ListPageDBPediaReader implements
 			+ "PREFIX dbpprop: <http://dbpedia.org/property/>"
 			+ "PREFIX dbpedia: <http://dbpedia.org/>"
 			+ "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
-			+ "PREFIX dbo: <http://dbpedia.org/ontology/>";
+			+ "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>";
 
-	/* (non-Javadoc)
-	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#openInput(de.unimannheim.dws.wikilist.reader.ReaderResource)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unimannheim.dws.wikilist.reader.IListPageReader#openInput(de.unimannheim
+	 * .dws.wikilist.reader.ReaderResource)
 	 */
 	@Override
 	public void openInput(ReaderResource resource) {
@@ -58,7 +62,9 @@ public class ListPageDBPediaReader implements
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#readInput()
 	 */
 	@Override
@@ -70,42 +76,48 @@ public class ListPageDBPediaReader implements
 
 			for (String dbpInstance : dbpRes.getResources()) {
 
-				queryStr = prefix
-						+
+				if (!dbpInstance.equals("")) {
 
-						/*
-						 * Example Query for
-						 * http://en.wikipedia.org/wiki/List_of_Peers_1330-1339
-						 * Instances
-						 */
-						"SELECT * WHERE {"
-						// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
-						+ dbpInstance + " " + dbpRes.getAttrPrefix() + ":"
-						+ dbpRes.getAttribute() + " ?" + dbpRes.getAttribute()
-						+ ". }";
+					queryStr = prefix
+							+
 
-				query = QueryFactory.create(queryStr);
+							/*
+							 * Example Query for
+							 * http://en.wikipedia.org/wiki/List_of_Peers_1330
+							 * -1339 Instances
+							 */
+							"SELECT * WHERE {"
+							// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
+							+ dbpInstance + " " + dbpRes.getAttrPrefix() + ":"
+							+ dbpRes.getAttribute() + " ?"
+							+ dbpRes.getAttribute() + ". }";
 
-				// Remote execution.
-				qexec = QueryExecutionFactory.sparqlService(
-						"http://dbpedia.org/sparql", query);
-				// Set the DBpedia specific timeout.
-				((QueryEngineHTTP) qexec).addParam("timeout", "10000");
+					query = QueryFactory.create(queryStr);
 
-				// Execute.
-				ResultSet rs = qexec.execSelect();
+					// Remote execution.
+					qexec = QueryExecutionFactory.sparqlService(
+							"http://dbpedia.org/sparql", query);
+					// Set the DBpedia specific timeout.
+					((QueryEngineHTTP) qexec).addParam("timeout", "10000");
 
-				// ResultSetFormatter.out(System.out, rs, query);
-				// Add result to HashMap.
-				result.put(dbpInstance, ResultSetFormatter.asXMLString(rs));
-				System.out.println("DBPedia Query successful for "+ dbpInstance);
-				this.close();
+					// Execute.
+					ResultSet rs = qexec.execSelect();
+
+					// ResultSetFormatter.out(System.out, rs, query);
+					// Add result to HashMap.
+					result.put(dbpInstance, ResultSetFormatter.asXMLString(rs));
+					System.out.println("DBPedia Query successful for "
+							+ dbpInstance);
+					this.close();
+				}
 			}
 		}
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#close()
 	 */
 	@Override
@@ -116,9 +128,11 @@ public class ListPageDBPediaReader implements
 
 	/**
 	 * Write output to file.
-	 *
-	 * @param path the path
-	 * @param text the text
+	 * 
+	 * @param path
+	 *            the path
+	 * @param text
+	 *            the text
 	 */
 	public void writeOutputToFile(String path, String text) {
 		try {

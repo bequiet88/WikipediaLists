@@ -34,15 +34,20 @@ public class EvaluationHelper {
 		 * Initiate Evaluation Result.
 		 */
 		EvaluationResult result = new EvaluationResult();
+		result.rdfTriples = new ArrayList<List<String>>();
 
 		/*
 		 * Iterate over wikiTable to mark all list elements already having
 		 * assigned a value in DBPedia
 		 */
+		int rowCount = 0;
 		for (List<String> tableRow : wikiTable) {
 
-			String link = getDBPediaLinkFromWikiLink(tableRow
-					.get(CopyOfWikiList.columnInstance));
+			String link = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
+					.get(CopyOfWikiList.columnInstance)));
+
+
+			System.out.println("Wiki to DBPedia Link, Row " + ++rowCount + ": " + link);
 
 			if (dbpValues.containsKey(link)) {
 
@@ -84,8 +89,8 @@ public class EvaluationHelper {
 
 					for (String dbpUri : uris) {
 
-						String matchingValueUri = getDBPediaLinkFromWikiLink(tableRow
-								.get(CopyOfWikiList.columnPosition));
+						String matchingValueUri = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
+								.get(CopyOfWikiList.columnPosition)));
 						String matchingValueLiteral = dbpUri.replace(
 								"http://dbpedia.org/resource/", "").replace(
 								"_", " ");
@@ -124,13 +129,17 @@ public class EvaluationHelper {
 						}
 
 					}
+					if (matchFound)
+						continue;
 				}
 				/*
-				 * If there is a DBPedia Uri but no match was found, add as Wiki Empty
+				 * If there is a DBPedia Uri but no match was found, add as Wiki
+				 * Empty
 				 */
-				else if (uris.size() > 0 && !matchFound) {
+				if (uris.size() > 0 && !matchFound) {
 					result.noOfDBPUriWikiEmpty++;
 					matchFound = true;
+					continue;
 				}
 
 				/*
@@ -151,29 +160,28 @@ public class EvaluationHelper {
 
 					for (String dbpLiteral : literals) {
 
-
 						/*
 						 * Check DBPedia Literal and Wiki Uri
 						 */
+						String matchingValueUri = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
+								.get(CopyOfWikiList.columnPosition)));
 
 						if (!matchFound
-								&& tableRow.get(CopyOfWikiList.columnPosition)
-										.startsWith("[[")
+								&& !matchingValueUri.equals("")
 								&& JaccardSimilarity.jaccardSimilarity(tableRow
 										.get(CopyOfWikiList.columnPosition),
 										dbpLiteral) > 0.45) {
 							result.noOfDBPLiteralWikiUri++;
 							matchFound = true;
-							
-							
+
 							/*
 							 * Add match to RDF Triple List
 							 */
 							List<String> rdfTriple = new ArrayList<String>();
 							rdfTriple.add(link);
-							rdfTriple.add(CopyOfWikiList.rdfTagPrefix+":"+CopyOfWikiList.rdfTag);
-							rdfTriple.add(getDBPediaLinkFromWikiLink(tableRow
-									.get(CopyOfWikiList.columnPosition)));
+							rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
+									+ CopyOfWikiList.rdfTag);
+							rdfTriple.add(matchingValueUri);
 							result.rdfTriples.add(rdfTriple);
 							break;
 						}
@@ -189,7 +197,7 @@ public class EvaluationHelper {
 							matchFound = true;
 							break;
 						}
-						
+
 						/*
 						 * Check DBPedia Literal and Wiki Empty
 						 */
@@ -202,68 +210,74 @@ public class EvaluationHelper {
 						}
 
 					}
+					if (matchFound)
+						continue;
 				}
 				/*
-				 * If there is a DBPedia Literal but no match was found, add as Wiki Empty
+				 * If there is a DBPedia Literal but no match was found, add as
+				 * Wiki Empty
 				 */
-				else if (literals.size() > 0 && !matchFound) {
+				if (literals.size() > 0 && !matchFound) {
 					result.noOfDBPLiteralWikiEmpty++;
 					matchFound = true;
+					continue;
 				}
-				
+
 				/*
-				 * In case neither a Uri nor a literal is present in DBPedia Entry, process as DBPedia Empty
+				 * In case neither a Uri nor a literal is present in DBPedia
+				 * Entry, process as DBPedia Empty
 				 */
-				
 
 				/*
 				 * Check DBPedia Empty and Wiki Uri
 				 */
+				
+				String matchingValueUri = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
+						.get(CopyOfWikiList.columnPosition)));
 
 				if (!matchFound
-						&& tableRow.get(CopyOfWikiList.columnPosition)
-								.startsWith("[[")) {
+						&& !matchingValueUri.equals("")) {
 					result.noOfDBPEmptyWikiUri++;
 					matchFound = true;
-					
-					
+
 					/*
 					 * Add match to RDF Triple List
 					 */
 					List<String> rdfTriple = new ArrayList<String>();
 					rdfTriple.add(link);
-					rdfTriple.add(CopyOfWikiList.rdfTagPrefix+":"+CopyOfWikiList.rdfTag);
-					rdfTriple.add(getDBPediaLinkFromWikiLink(tableRow
-							.get(CopyOfWikiList.columnPosition)));
+					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
+							+ CopyOfWikiList.rdfTag);
+					rdfTriple.add(matchingValueUri);
 					result.rdfTriples.add(rdfTriple);
 				}
-				
+
 				/*
 				 * Check DBPedia Empty and Wiki Literal
 				 */
 				else if (!matchFound) {
 					result.noOfDBPEmptyWikiLiteral++;
 					matchFound = true;
-					
+
 					/*
 					 * Add match to RDF Triple List
 					 */
 					List<String> rdfTriple = new ArrayList<String>();
 					rdfTriple.add(link);
-					rdfTriple.add(CopyOfWikiList.rdfTagPrefix+":"+CopyOfWikiList.rdfTag);
-					rdfTriple.add(tableRow
-							.get(CopyOfWikiList.columnPosition));
+					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
+							+ CopyOfWikiList.rdfTag);
+					rdfTriple.add(tableRow.get(CopyOfWikiList.columnPosition));
 					result.rdfTriples.add(rdfTriple);
 				}
-				
+
 				/*
-				 * Everything that reaches this code is dealt as DBPedia Empty and Wiki Empty
+				 * Everything that reaches this code is dealt as DBPedia Empty
+				 * and Wiki Empty
 				 */
 				else {
 					result.noOfDBPEmptyWikiEmpty++;
 					matchFound = true;
 				}
-				
+
 			}
 
 		}
@@ -277,11 +291,16 @@ public class EvaluationHelper {
 
 		if (tableField.startsWith("[[")) {
 
-			String[] resArray = tableField.split("|", 2);
-			resArray[1].substring(2);
+			String[] resArray = tableField.split("\\|", 2);
 
-			resLink = "<http://dbpedia.org/resource/"
-					+ resArray[1].substring(2).replace(" ", "_") + ">";
+			if (resArray[0].endsWith("]]")) {
+				resLink = "<http://dbpedia.org/resource/"
+						+ resArray[0].substring(2, resArray[0].length() - 2)
+								.replace(" ", "_") + ">";
+			} else {
+				resLink = "<http://dbpedia.org/resource/"
+						+ resArray[0].substring(2).replace(" ", "_") + ">";
+			}
 		}
 
 		return resLink;
