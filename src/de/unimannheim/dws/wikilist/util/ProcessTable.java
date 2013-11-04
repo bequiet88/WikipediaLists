@@ -27,8 +27,9 @@ public class ProcessTable {
 		Wikipedia wiki = new Wikipedia(dbConfig);
 
 		Page page = new Page(wiki,
-				"List_of_lesbian,_gay,_bisexual_or_transgender-related_films_of_1991");
-		// "List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
+				//"List_of_lesbian,_gay,_bisexual_or_transgender-related_films_of_1991");
+		 //"List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
+				"List_of_Peers_1330-1339");
 		System.out.println(page.getText());
 		System.out.println("---");
 
@@ -64,8 +65,9 @@ public class ProcessTable {
 				continue;
 
 			/*
-			 * Wiki Table Type 1: Multiple JWPL Rows for one Table Row
+			 * Determine correct table type
 			 */
+
 			if (line.startsWith("|--")) {
 				tableTypeOne = true;
 				if (tableRowCache.size() != 0) {
@@ -74,7 +76,16 @@ public class ProcessTable {
 				}
 				continue;
 			}
+			
+			// line separators
+			if (line.startsWith("|-")) {
+				tableTypeOne = false;
+				continue;
+			}
 
+			/*
+			 * Wiki Table Type 1: Multiple JWPL Rows for one Table Row
+			 */
 			if (tableTypeOne) {
 				tableRowCache.add(line.substring(line.indexOf("|") + 1));
 			}
@@ -82,11 +93,6 @@ public class ProcessTable {
 			/*
 			 * Wiki Table Type 2: One JWPL Row for one Table Row
 			 */
-			// line separators
-			if (line.startsWith("|-")) {
-				tableTypeOne = false;
-				continue;
-			}
 
 			if (!tableTypeOne) {
 
