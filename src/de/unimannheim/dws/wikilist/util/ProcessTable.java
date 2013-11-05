@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import montylingua.string;
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
@@ -27,9 +28,11 @@ public class ProcessTable {
 		Wikipedia wiki = new Wikipedia(dbConfig);
 
 		Page page = new Page(wiki,
-				//"List_of_lesbian,_gay,_bisexual_or_transgender-related_films_of_1991");
-		 //"List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
-				"List_of_Peers_1330-1339");
+		 //"List_of_lesbian,_gay,_bisexual_or_transgender-related_films_of_1991");
+		//"List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
+		// "List_of_horror_films_of_2001");
+				// "List_of_places_in_Florida:_T-V");
+				"List_of_mayors_of_Edmonton");
 		System.out.println(page.getText());
 		System.out.println("---");
 
@@ -41,7 +44,7 @@ public class ProcessTable {
 		}
 		System.out.println(table.size());
 
-		for (String link : getColumn(table, 0)) {
+		for (String link : getColumn(table, 1)) {
 			System.out.println(link);
 		}
 
@@ -59,42 +62,67 @@ public class ProcessTable {
 
 		boolean tableTypeOne = true;
 
+		List<List<String>> tableTypeIdentifier = new LinkedList<List<String>>();
+
+		/*
+		 * Determine correct table type
+		 */
 		for (String line : lines) {
-			// find first table line
+			if (!line.startsWith("|"))
+				continue;
+			// line separators
+			if (line.startsWith("|-")) {
+				continue;
+			}
+
+			Collection<String> cellStrings = breakLineIntoCells(line);
+			tableTypeIdentifier.add(new LinkedList<String>(cellStrings));
+		}
+
+		int majorityLength = cleanTable(tableTypeIdentifier);
+
+		if (majorityLength == 1) {
+			tableTypeOne = true;
+		} else {
+			tableTypeOne = false;
+		}
+		/*
+		 * Parse Table
+		 */
+
+		for (String line : lines) {
+
 			if (!line.startsWith("|"))
 				continue;
 
-			/*
-			 * Determine correct table type
-			 */
-
-			if (line.startsWith("|--")) {
-				tableTypeOne = true;
+			if (line.startsWith("|-") && tableTypeOne == true) {
 				if (tableRowCache.size() != 0) {
 					result.add(tableRowCache);
 					tableRowCache = new LinkedList<String>();
 				}
 				continue;
 			}
-			
+
 			// line separators
-			if (line.startsWith("|-")) {
-				tableTypeOne = false;
+			else if (line.startsWith("|-")) {
 				continue;
 			}
 
 			/*
 			 * Wiki Table Type 1: Multiple JWPL Rows for one Table Row
 			 */
-			if (tableTypeOne) {
-				tableRowCache.add(line.substring(line.indexOf("|") + 1));
+			if (tableTypeOne == true) {
+				if(line.contains("align=")) {
+					line = line.substring(nthIndexOf(line, "|", 2)+1);
+				}
+				else {tableRowCache.add(line.substring(line.indexOf("|") + 1));}
 			}
 
 			/*
 			 * Wiki Table Type 2: One JWPL Row for one Table Row
 			 */
 
-			if (!tableTypeOne) {
+			if (tableTypeOne == false) {
 
 				Collection<String> cellStrings = breakLineIntoCells(line);
 
@@ -105,6 +133,10 @@ public class ProcessTable {
 				int rowspanRead = 0;
 
 				for (String cell : cellStrings) {
+					// omit cell format
+					if(cell.contains("align=")) {
+						cell = cell.substring(nthIndexOf(cell, "|", 1)+1);
+					}
 					// fill from rowspan cache, if necessary
 					if (rowSpanCache.containsKey(column)) {
 						cells.add(rowSpanCache.get(column).getFirst());
@@ -117,8 +149,10 @@ public class ProcessTable {
 						// normal parsing
 					} else {
 						cell = cell.trim();
-						if (cell.length() == 0)
+						if (cell.length() == 0) {
+							cells.add(cell);
 							continue;
+						}
 						// formatting cells
 						if (cell.indexOf("=\"") > 0) {
 							if (cell.indexOf("rowspan=\"") >= 0)
@@ -159,7 +193,7 @@ public class ProcessTable {
 	}
 
 	// removes all entries that do not match the common table length
-	private static void cleanTable(List<List<String>> table) {
+	private static int cleanTable(List<List<String>> table) {
 
 		// count
 		Map<Integer, Integer> lengthCount = new HashMap<Integer, Integer>();
@@ -184,13 +218,16 @@ public class ProcessTable {
 		// discard lines
 		Iterator<List<String>> it = table.iterator();
 		while (it.hasNext()) {
-			if (it.next().size() > majorityLength + 1
-					|| it.next().size() < majorityLength)
+			List<String> next = it.next();
+			if (next.size() > majorityLength + 1
+					|| next.size() < majorityLength)
 				it.remove();
 			// if (it.next().size() > majorityLength+1 || it.next().size() <
 			// majorityLength-1)
 			// it.remove();
 		}
+
+		return majorityLength;
 
 	}
 
@@ -199,7 +236,7 @@ public class ProcessTable {
 		int numOpeningLinkBrackets = 0;
 		int numOpeningCurlyBraces = 0;
 		StringBuilder currentCell = new StringBuilder();
-		for (int i = 0; i < line.length() - 1; i++) {
+		for (int i = 1; i < line.length() - 1; i++) {
 			char c = line.charAt(i);
 			char c2 = line.charAt(i + 1);
 			if (c == '|' && c2 == '|' && numOpeningLinkBrackets == 0
@@ -207,10 +244,10 @@ public class ProcessTable {
 				result.add(currentCell.toString());
 				currentCell = new StringBuilder();
 				i++;
-			} else if (c == '|' && numOpeningLinkBrackets == 0
-					&& numOpeningCurlyBraces == 0) {
-				result.add(currentCell.toString());
-				currentCell = new StringBuilder();
+				// } else if (c == '|' && numOpeningLinkBrackets == 0
+				// && numOpeningCurlyBraces == 0) {
+				// result.add(currentCell.toString());
+				// currentCell = new StringBuilder();
 			} else {
 				currentCell.append(c);
 				if (c == '[')
@@ -259,10 +296,10 @@ public class ProcessTable {
 			else
 				return substring;
 
-		} else if (s.startsWith("{{Sortname")) {
+		} else if (s.startsWith("{{Sortname") || s.startsWith("{{sortname") ) {
 			String[] sArray = s.split("\\|");
 			if (sArray.length == 3)
-				return sArray[1] + " " + sArray[2];
+				return sArray[1] + " " + sArray[2].substring(0, sArray[2].indexOf("}}"));
 			else
 				return "";
 		} else
@@ -273,5 +310,16 @@ public class ProcessTable {
 		if (s.equals(""))
 			return "";
 		return "<http://dbpedia.org/resource/" + s.replaceAll(" ", "_") + ">";
+	}
+	
+	private static int nthIndexOf(String source, String sought, int n) {
+	    int index = source.indexOf(sought);
+	    if (index == -1) return -1;
+
+	    for (int i = 1; i < n; i++) {
+	        index = source.indexOf(sought, index + 1);
+	        if (index == -1) return -1;
+	    }
+	    return index;
 	}
 }

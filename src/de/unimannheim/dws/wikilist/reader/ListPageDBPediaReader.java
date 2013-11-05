@@ -46,6 +46,7 @@ public class ListPageDBPediaReader implements
 			+ "PREFIX dbpprop: <http://dbpedia.org/property/>"
 			+ "PREFIX dbpedia: <http://dbpedia.org/>"
 			+ "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
+			+ "PREFIX owl: <http://dbpedia.org/ontology/>"
 			+ "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>";
 
 	/*

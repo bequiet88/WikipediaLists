@@ -43,11 +43,11 @@ public class EvaluationHelper {
 		int rowCount = 0;
 		for (List<String> tableRow : wikiTable) {
 
-			String link = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
-					.get(CopyOfWikiList.columnInstance)));
+			String link = ProcessTable.wiki2dbpLink(ProcessTable
+					.getLink(tableRow.get(CopyOfWikiList.columnInstance)));
 
-
-			System.out.println("Wiki to DBPedia Link, Row " + ++rowCount + ": " + link);
+			System.out.println("Wiki to DBPedia Link, Row " + ++rowCount + ": "
+					+ link);
 
 			if (dbpValues.containsKey(link)) {
 
@@ -89,8 +89,9 @@ public class EvaluationHelper {
 
 					for (String dbpUri : uris) {
 
-						String matchingValueUri = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
-								.get(CopyOfWikiList.columnPosition)));
+						String matchingValueUri = ProcessTable
+								.wiki2dbpLink(ProcessTable.getLink(tableRow
+										.get(CopyOfWikiList.columnPosition)));
 						String matchingValueLiteral = dbpUri.replace(
 								"http://dbpedia.org/resource/", "").replace(
 								"_", " ");
@@ -121,8 +122,10 @@ public class EvaluationHelper {
 						 * Check DBPedia Uri and Wiki Empty
 						 */
 						else if (!matchFound
-								&& tableRow.get(CopyOfWikiList.columnPosition)
-										.equals("")) {
+								&& (tableRow.get(CopyOfWikiList.columnPosition).trim().equals("")
+										|| tableRow.get(CopyOfWikiList.columnPosition).equals(
+												"&nbsp;") || tableRow.get(CopyOfWikiList.columnPosition).trim().equals(
+														"-"))) {
 							result.noOfDBPUriWikiEmpty++;
 							matchFound = true;
 							break;
@@ -163,8 +166,9 @@ public class EvaluationHelper {
 						/*
 						 * Check DBPedia Literal and Wiki Uri
 						 */
-						String matchingValueUri = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
-								.get(CopyOfWikiList.columnPosition)));
+						String matchingValueUri = ProcessTable
+								.wiki2dbpLink(ProcessTable.getLink(tableRow
+										.get(CopyOfWikiList.columnPosition)));
 
 						if (!matchFound
 								&& !matchingValueUri.equals("")
@@ -202,8 +206,13 @@ public class EvaluationHelper {
 						 * Check DBPedia Literal and Wiki Empty
 						 */
 						else if (!matchFound
-								&& tableRow.get(CopyOfWikiList.columnPosition)
-										.equals("")) {
+								&& (tableRow.get(CopyOfWikiList.columnPosition)
+										.trim().equals("")
+										|| tableRow.get(
+												CopyOfWikiList.columnPosition)
+												.equals("&nbsp;") || tableRow
+										.get(CopyOfWikiList.columnPosition)
+										.trim().equals("-"))) {
 							result.noOfDBPLiteralWikiEmpty++;
 							matchFound = true;
 							break;
@@ -231,12 +240,12 @@ public class EvaluationHelper {
 				/*
 				 * Check DBPedia Empty and Wiki Uri
 				 */
-				
-				String matchingValueUri = ProcessTable.wiki2dbpLink(ProcessTable.getLink(tableRow
-						.get(CopyOfWikiList.columnPosition)));
 
-				if (!matchFound
-						&& !matchingValueUri.equals("")) {
+				String matchingValueUri = ProcessTable
+						.wiki2dbpLink(ProcessTable.getLink(tableRow
+								.get(CopyOfWikiList.columnPosition)));
+
+				if (!matchFound && !matchingValueUri.equals("")) {
 					result.noOfDBPEmptyWikiUri++;
 					matchFound = true;
 
@@ -254,7 +263,13 @@ public class EvaluationHelper {
 				/*
 				 * Check DBPedia Empty and Wiki Literal
 				 */
-				else if (!matchFound) {
+				else if (!matchFound
+						&& !tableRow.get(CopyOfWikiList.columnPosition).trim()
+								.equals("")
+						&& !tableRow.get(CopyOfWikiList.columnPosition).equals(
+								"&nbsp;")
+						&& !tableRow.get(CopyOfWikiList.columnPosition).trim().equals(
+								"-")) {
 					result.noOfDBPEmptyWikiLiteral++;
 					matchFound = true;
 
