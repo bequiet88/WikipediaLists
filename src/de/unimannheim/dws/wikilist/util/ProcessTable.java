@@ -7,13 +7,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import montylingua.string;
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
 import de.tudarmstadt.ukp.wikipedia.api.Wikipedia;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class ProcessTable.
+ */
 public class ProcessTable {
+
+	/**
+	 * The main method.
+	 * 
+	 * @param args
+	 *            the arguments
+	 * @throws Exception
+	 *             the exception
+	 */
 	public static void main(String[] args) throws Exception {
 		// setup
 		SSHConnection ssh = new SSHConnection();
@@ -28,11 +40,11 @@ public class ProcessTable {
 		Wikipedia wiki = new Wikipedia(dbConfig);
 
 		Page page = new Page(wiki,
-		 //"List_of_lesbian,_gay,_bisexual_or_transgender-related_films_of_1991");
-		//"List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
+		// "List_of_lesbian,_gay,_bisexual_or_transgender-related_films_of_1991");
+		// "List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
 		// "List_of_horror_films_of_2001");
-				// "List_of_places_in_Florida:_T-V");
-				"List_of_mayors_of_Edmonton");
+		// "List_of_places_in_Florida:_T-V");
+				"List_of_towns_and_cities_with_100,000_or_more_inhabitants/cityname:_G");
 		System.out.println(page.getText());
 		System.out.println("---");
 
@@ -52,6 +64,13 @@ public class ProcessTable {
 		ssh.close();
 	}
 
+	/**
+	 * Parses the first table.
+	 * 
+	 * @param wikipage
+	 *            the wikipage
+	 * @return the list
+	 */
 	public static List<List<String>> parseFirstTable(String wikipage) {
 		List<List<String>> result = new LinkedList<List<String>>();
 
@@ -112,10 +131,12 @@ public class ProcessTable {
 			 * Wiki Table Type 1: Multiple JWPL Rows for one Table Row
 			 */
 			if (tableTypeOne == true) {
-				if(line.contains("align=")) {
-					line = line.substring(nthIndexOf(line, "|", 2)+1);
+				if (line.contains("align=")) {
+					line = line.substring(nthIndexOf(line, "|", 2) + 1);
+					tableRowCache.add(line);
+				} else {
+					tableRowCache.add(line.substring(line.indexOf("|") + 1));
 				}
-				else {tableRowCache.add(line.substring(line.indexOf("|") + 1));}
 			}
 
 			/*
@@ -134,8 +155,8 @@ public class ProcessTable {
 
 				for (String cell : cellStrings) {
 					// omit cell format
-					if(cell.contains("align=")) {
-						cell = cell.substring(nthIndexOf(cell, "|", 1)+1);
+					if (cell.contains("align=")) {
+						cell = cell.substring(nthIndexOf(cell, "|", 1) + 1);
 					}
 					// fill from rowspan cache, if necessary
 					if (rowSpanCache.containsKey(column)) {
@@ -192,7 +213,83 @@ public class ProcessTable {
 		return result;
 	}
 
+	/**
+	 * Gets the column.
+	 * 
+	 * @param table
+	 *            the table
+	 * @param column
+	 *            the column
+	 * @return the column
+	 */
+	public static List<String> getColumn(List<List<String>> table, int column) {
+		List<String> result = new LinkedList<String>();
+		for (List<String> row : table) {
+			if (column < row.size())
+				result.add(wiki2dbpLink(getLink(row.get(column))));
+		}
+		return result;
+	}
+
+	/**
+	 * Extract a link from a string.
+	 * 
+	 * @param s
+	 *            the s
+	 * @return the link
+	 */
+	public static String getLink(String s) {
+		// System.out.println(s);
+		try {
+
+			if (s.startsWith("[[") || s.startsWith("''[[")) {
+				if (s.contains("|"))
+					return s.substring(s.indexOf("[[") + 2, s.indexOf("|"));
+				else
+					return s.substring(s.indexOf("[[") + 2, s.indexOf("]]"));
+			} else if (s.startsWith("{{") && s.contains("[[")) {
+				String substring = s.substring(s.indexOf("[[") + 2,
+						s.indexOf("]]"));
+				if (substring.contains("|"))
+					return substring.substring(0, s.indexOf("|"));
+				else
+					return substring;
+
+			} else if (s.startsWith("{{Sortname") || s.startsWith("{{sortname")) {
+				String[] sArray = s.split("\\|");
+				if (sArray.length == 3)
+					return sArray[1] + " "
+							+ sArray[2].substring(0, sArray[2].indexOf("}}"));
+				else
+					return "";
+			} else
+				return "";
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
+	/**
+	 * Wiki2dbp link.
+	 * 
+	 * @param s
+	 *            the s
+	 * @return the string
+	 */
+	public static String wiki2dbpLink(String s) {
+		if (s.equals(""))
+			return "";
+		return "<http://dbpedia.org/resource/" + s.replaceAll(" ", "_") + ">";
+	}
+
 	// removes all entries that do not match the common table length
+	/**
+	 * Clean table.
+	 * 
+	 * @param table
+	 *            the table
+	 * @return the int
+	 */
 	private static int cleanTable(List<List<String>> table) {
 
 		// count
@@ -231,6 +328,13 @@ public class ProcessTable {
 
 	}
 
+	/**
+	 * Break line into cells.
+	 * 
+	 * @param line
+	 *            the line
+	 * @return the collection
+	 */
 	private static Collection<String> breakLineIntoCells(String line) {
 		Collection<String> result = new LinkedList<String>();
 		int numOpeningLinkBrackets = 0;
@@ -266,60 +370,27 @@ public class ProcessTable {
 		return result;
 	}
 
-	public static List<String> getColumn(List<List<String>> table, int column) {
-		List<String> result = new LinkedList<String>();
-		for (List<String> row : table) {
-			if (column < row.size())
-				result.add(wiki2dbpLink(getLink(row.get(column))));
-		}
-		return result;
-	}
-
 	/**
-	 * Extract a link from a string
+	 * Nth index of.
 	 * 
-	 * @param s
-	 * @return
+	 * @param source
+	 *            the source
+	 * @param sought
+	 *            the sought
+	 * @param n
+	 *            the n
+	 * @return the int
 	 */
-	public static String getLink(String s) {
-		// System.out.println(s);
-		if (s.startsWith("[[") || s.startsWith("''[[")) {
-			if (s.contains("|"))
-				return s.substring(s.indexOf("[[") + 2, s.indexOf("|"));
-			else
-				return s.substring(s.indexOf("[[") + 2, s.indexOf("]]"));
-		} else if (s.startsWith("{{") && s.contains("[[")) {
-			String substring = s
-					.substring(s.indexOf("[[") + 2, s.indexOf("]]"));
-			if (substring.contains("|"))
-				return substring.substring(0, s.indexOf("|"));
-			else
-				return substring;
-
-		} else if (s.startsWith("{{Sortname") || s.startsWith("{{sortname") ) {
-			String[] sArray = s.split("\\|");
-			if (sArray.length == 3)
-				return sArray[1] + " " + sArray[2].substring(0, sArray[2].indexOf("}}"));
-			else
-				return "";
-		} else
-			return "";
-	}
-
-	public static String wiki2dbpLink(String s) {
-		if (s.equals(""))
-			return "";
-		return "<http://dbpedia.org/resource/" + s.replaceAll(" ", "_") + ">";
-	}
-	
 	private static int nthIndexOf(String source, String sought, int n) {
-	    int index = source.indexOf(sought);
-	    if (index == -1) return -1;
+		int index = source.indexOf(sought);
+		if (index == -1)
+			return -1;
 
-	    for (int i = 1; i < n; i++) {
-	        index = source.indexOf(sought, index + 1);
-	        if (index == -1) return -1;
-	    }
-	    return index;
+		for (int i = 1; i < n; i++) {
+			index = source.indexOf(sought, index + 1);
+			if (index == -1)
+				return -1;
+		}
+		return index;
 	}
 }

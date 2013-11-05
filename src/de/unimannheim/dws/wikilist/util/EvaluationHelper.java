@@ -27,6 +27,17 @@ public class EvaluationHelper {
 	// equals Literal
 	// else Wiki n/a
 
+	
+	
+	/**
+	 * Evaluate.
+	 *
+	 * @param wikiTable the wiki table
+	 * @param dbpValues the dbp values
+	 * @param tag the tag
+	 * @return the evaluation result
+	 * @throws Exception the exception
+	 */
 	public EvaluationResult evaluate(List<List<String>> wikiTable,
 			HashMap<String, String> dbpValues, String tag) throws Exception {
 
@@ -300,26 +311,26 @@ public class EvaluationHelper {
 		return result;
 	}
 
-	private String getDBPediaLinkFromWikiLink(String tableField) {
-
-		String resLink = "";
-
-		if (tableField.startsWith("[[")) {
-
-			String[] resArray = tableField.split("\\|", 2);
-
-			if (resArray[0].endsWith("]]")) {
-				resLink = "<http://dbpedia.org/resource/"
-						+ resArray[0].substring(2, resArray[0].length() - 2)
-								.replace(" ", "_") + ">";
-			} else {
-				resLink = "<http://dbpedia.org/resource/"
-						+ resArray[0].substring(2).replace(" ", "_") + ">";
-			}
-		}
-
-		return resLink;
-
-	}
+//	private String getDBPediaLinkFromWikiLink(String tableField) {
+//
+//		String resLink = "";
+//
+//		if (tableField.startsWith("[[")) {
+//
+//			String[] resArray = tableField.split("\\|", 2);
+//
+//			if (resArray[0].endsWith("]]")) {
+//				resLink = "<http://dbpedia.org/resource/"
+//						+ resArray[0].substring(2, resArray[0].length() - 2)
+//								.replace(" ", "_") + ">";
+//			} else {
+//				resLink = "<http://dbpedia.org/resource/"
+//						+ resArray[0].substring(2).replace(" ", "_") + ">";
+//			}
+//		}
+//
+//		return resLink;
+//
+//	}
 
 }

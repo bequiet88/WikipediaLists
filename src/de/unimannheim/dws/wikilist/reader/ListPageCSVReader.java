@@ -49,7 +49,8 @@ public class ListPageCSVReader implements IListPageReader<List<List<String>>> {
 	public List<List<String>> readInput() throws Exception {
 
 		List<List<String>> result = new ArrayList<List<String>>();
-		Iterable<CSVRecord> parser = CSVFormat.EXCEL.parse(reader);
+		Iterable<CSVRecord> parser = CSVFormat.newFormat('\t').parse(reader);
+//				CSVFormat.EXCEL.parse(reader);
 		boolean firstRecord = true;
 		for (CSVRecord record : parser) {
 			if (firstRecord)

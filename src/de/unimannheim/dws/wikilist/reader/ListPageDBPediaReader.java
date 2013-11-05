@@ -69,7 +69,7 @@ public class ListPageDBPediaReader implements
 	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#readInput()
 	 */
 	@Override
-	public HashMap<String, String> readInput() throws Exception {
+	public HashMap<String, String> readInput() {
 
 		HashMap<String, String> result = new HashMap<String, String>();
 
@@ -77,39 +77,46 @@ public class ListPageDBPediaReader implements
 
 			for (String dbpInstance : dbpRes.getResources()) {
 
-				if (!dbpInstance.equals("")) {
+				try {
 
-					queryStr = prefix
-							+
+					if (!dbpInstance.equals("")) {
 
-							/*
-							 * Example Query for
-							 * http://en.wikipedia.org/wiki/List_of_Peers_1330
-							 * -1339 Instances
-							 */
-							"SELECT * WHERE {"
-							// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
-							+ dbpInstance + " " + dbpRes.getAttrPrefix() + ":"
-							+ dbpRes.getAttribute() + " ?"
-							+ dbpRes.getAttribute() + ". }";
+						queryStr = prefix
+								+
 
-					query = QueryFactory.create(queryStr);
+								/*
+								 * Example Query for
+								 * http://en.wikipedia.org/wiki
+								 * /List_of_Peers_1330 -1339 Instances
+								 */
+								"SELECT * WHERE {"
+								// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
+								+ dbpInstance + " " + dbpRes.getAttrPrefix()
+								+ ":" + dbpRes.getAttribute() + " ?"
+								+ dbpRes.getAttribute() + ". }";
 
-					// Remote execution.
-					qexec = QueryExecutionFactory.sparqlService(
-							"http://dbpedia.org/sparql", query);
-					// Set the DBpedia specific timeout.
-					((QueryEngineHTTP) qexec).addParam("timeout", "10000");
+						query = QueryFactory.create(queryStr);
 
-					// Execute.
-					ResultSet rs = qexec.execSelect();
+						// Remote execution.
+						qexec = QueryExecutionFactory.sparqlService(
+								"http://dbpedia.org/sparql", query);
+						// Set the DBpedia specific timeout.
+						((QueryEngineHTTP) qexec).addParam("timeout", "10000");
 
-					// ResultSetFormatter.out(System.out, rs, query);
-					// Add result to HashMap.
-					result.put(dbpInstance, ResultSetFormatter.asXMLString(rs));
-					System.out.println("DBPedia Query successful for "
-							+ dbpInstance);
-					this.close();
+						// Execute.
+						ResultSet rs = qexec.execSelect();
+
+						// ResultSetFormatter.out(System.out, rs, query);
+						// Add result to HashMap.
+						result.put(dbpInstance,
+								ResultSetFormatter.asXMLString(rs));
+						System.out.println("DBPedia Query successful for "
+								+ dbpInstance);
+						this.close();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					continue;
 				}
 			}
 		}
