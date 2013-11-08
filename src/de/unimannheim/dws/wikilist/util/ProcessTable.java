@@ -44,7 +44,7 @@ public class ProcessTable {
 		// "List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
 		// "List_of_horror_films_of_2001");
 		// "List_of_places_in_Florida:_T-V");
-				"List_of_towns_and_cities_with_100,000_or_more_inhabitants/cityname:_G");
+				"List_of_Copa_Libertadores_winning_managers");
 		System.out.println(page.getText());
 		System.out.println("---");
 
@@ -56,7 +56,7 @@ public class ProcessTable {
 		}
 		System.out.println(table.size());
 
-		for (String link : getColumn(table, 1)) {
+		for (String link : getColumn(table,2)) {
 			System.out.println(link);
 		}
 
@@ -78,6 +78,7 @@ public class ProcessTable {
 
 		Map<Integer, Pair<String, Integer>> rowSpanCache = new HashMap<Integer, Pair<String, Integer>>();
 		List<String> tableRowCache = new LinkedList<String>();
+		String lineCache = "";
 
 		boolean tableTypeOne = true;
 
@@ -87,15 +88,19 @@ public class ProcessTable {
 		 * Determine correct table type
 		 */
 		for (String line : lines) {
+			// if(line.startsWith(!) )
+
 			if (!line.startsWith("|"))
 				continue;
 			// line separators
 			if (line.startsWith("|-")) {
 				continue;
 			}
+			lineCache = line;
 
 			Collection<String> cellStrings = breakLineIntoCells(line);
 			tableTypeIdentifier.add(new LinkedList<String>(cellStrings));
+
 		}
 
 		int majorityLength = cleanTable(tableTypeIdentifier);
@@ -240,10 +245,13 @@ public class ProcessTable {
 	 */
 	public static String getLink(String s) {
 		// System.out.println(s);
+		s = s.trim();
 		try {
 
-			if (s.startsWith("[[") || s.startsWith("''[[")) {
-				if (s.contains("|"))
+			if (s.startsWith("[[") || s.startsWith("''[[") || s.startsWith("'''[[")) {
+				
+				String t = s.substring(s.indexOf("[[") + 2, s.indexOf("]]"));
+				if (t.contains("|"))
 					return s.substring(s.indexOf("[[") + 2, s.indexOf("|"));
 				else
 					return s.substring(s.indexOf("[[") + 2, s.indexOf("]]"));
@@ -336,6 +344,10 @@ public class ProcessTable {
 	 * @return the collection
 	 */
 	private static Collection<String> breakLineIntoCells(String line) {
+		// omit cell format
+		if (line.contains("align=")) {
+			line = line.substring(nthIndexOf(line, "|", 1) + 1);
+		}
 		Collection<String> result = new LinkedList<String>();
 		int numOpeningLinkBrackets = 0;
 		int numOpeningCurlyBraces = 0;

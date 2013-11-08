@@ -43,9 +43,11 @@ public class ExampleDBpedia3
         +"?e <http://dbpedia.org/ontology/episodeNumber> ?number ."
     	+"?e <http://dbpedia.org/ontology/seasonNumber> ?season ."
     	+"}" + "ORDER BY DESC(?date)";
+
         
         Query query = QueryFactory.create(queryString) ;
-        QueryExecution qexec = QueryExecutionFactory.create(query, ModelFactory.createDefaultModel()) ;
+        // Remote execution.
+        QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
 
         Map<String, Map<String,List<String>>> serviceParams = new HashMap<String, Map<String,List<String>>>() ;
         Map<String,List<String>> params = new HashMap<String,List<String>>() ;
