@@ -85,8 +85,8 @@ public class EvaluationHelper {
 				 * format
 				 */
 
-				XPathExpression expr = xpath
-						.compile("//binding[@name = \"title\"]/uri/text()");
+				XPathExpression expr = xpath.compile("//binding[@name = \""
+						+ CopyOfWikiList.rdfTag + "\"]/uri/text()");
 
 				// "/Employees/Employee[gender='Female']/name/text()");
 
@@ -161,8 +161,8 @@ public class EvaluationHelper {
 				 * comparable format
 				 */
 
-				expr = xpath
-						.compile("//binding[@name = \"title\"]/literal/text()");
+				expr = xpath.compile("//binding[@name = \""
+						+ CopyOfWikiList.rdfTag + "\"]/literal/text()");
 
 				List<String> literals = new ArrayList<String>();
 				nodes = (NodeList) expr.evaluate(document,

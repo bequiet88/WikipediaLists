@@ -14,6 +14,8 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
+import de.unimannheim.dws.wikilist.util.Triple;
+
 /**
  * The Class ListPageDBPediaReader.
  */
@@ -73,7 +75,7 @@ public class ListPageDBPediaReader implements
 
 		HashMap<String, String> result = new HashMap<String, String>();
 
-		if (dbpRes != null) {
+		if (dbpRes.getResources() != null) {
 
 			for (String dbpInstance : dbpRes.getResources()) {
 
@@ -118,6 +120,47 @@ public class ListPageDBPediaReader implements
 					e.printStackTrace();
 					continue;
 				}
+			}
+		} else if (dbpRes.getTriples() != null) {
+			for (Triple<String, String, String> dbpQuery : dbpRes.getTriples()) {
+
+				try {
+
+					queryStr = prefix +
+
+					/*
+					 * Example Query for http://en.wikipedia.org/wiki
+					 * /List_of_Peers_1330 -1339 Instances
+					 */
+					"SELECT * WHERE {"
+							// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
+							+ dbpQuery.getFirst() + " " + dbpQuery.getSecond()
+							+ " " + dbpQuery.getThird() + ". }";
+
+					query = QueryFactory.create(queryStr);
+
+					// Remote execution.
+					qexec = QueryExecutionFactory.sparqlService(
+							"http://dbpedia.org/sparql", query);
+					// Set the DBpedia specific timeout.
+					((QueryEngineHTTP) qexec).addParam("timeout", "10000");
+
+					// Execute.
+					ResultSet rs = qexec.execSelect();
+
+					// ResultSetFormatter.out(System.out, rs, query);
+					// Add result to HashMap.
+					result.put(dbpQuery.toString(),
+							ResultSetFormatter.asXMLString(rs));
+					System.out.println("DBPedia Query successful for "
+							+ dbpQuery.toString());
+					this.close();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+					continue;
+				}
+
 			}
 		}
 		return result;

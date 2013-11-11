@@ -45,7 +45,8 @@ public class ExampleDBpedia1
         			+"PREFIX dbpprop: <http://dbpedia.org/property/>"
         			+"PREFIX dbpedia: <http://dbpedia.org/>"
         			+"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
-        			+"PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>";
+        			+"PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>"
+        			+ "PREFIX dbpprop-de: <http://de.dbpedia.org/property/>";
         	
         	
             String queryStr = prefix + 
@@ -62,7 +63,7 @@ public class ExampleDBpedia1
             		
             		"SELECT *"
             		+"WHERE {"
-            		    +"<http://dbpedia.org/resource/Edward,_the_Black_Prince> $attr $val . }";
+            		    +"<http://de.dbpedia.org/resource/Acino_Holding> dbpprop-de:mitarbeiterzahl $val . }";
             		
             /*
              * Example 1
@@ -105,7 +106,7 @@ public class ExampleDBpedia1
             Query query = QueryFactory.create(queryStr);
 
             // Remote execution.
-            QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
+            QueryExecution qexec = QueryExecutionFactory.sparqlService("http://de.dbpedia.org/sparql", query);
             // Set the DBpedia specific timeout.
             ((QueryEngineHTTP)qexec).addParam("timeout", "10000") ;
 

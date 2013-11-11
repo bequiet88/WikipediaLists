@@ -2,6 +2,8 @@ package de.unimannheim.dws.wikilist.reader;
 
 import java.util.List;
 
+import de.unimannheim.dws.wikilist.util.Triple;
+
 /**
  * The Class ReaderResource.
  */
@@ -18,7 +20,10 @@ public class ReaderResource {
 	
 	/** The attr prefix. */
 	private String attrPrefix;
-
+	
+	/** The attr prefix. */
+	private List<Triple<String, String, String>> triples;
+	
 	/**
 	 * Constructor for DBPedia Reader.
 	 *
@@ -32,6 +37,15 @@ public class ReaderResource {
 		this.resources = resources;
 		this.attribute = attribute;
 		this.attrPrefix = attrPrefix;
+	}
+
+	/**
+	 * Constructor for DBPedia Reader II.
+	 *
+	 * @param resources the resources
+	 */	
+	public ReaderResource(List<Triple<String, String, String>> resources) {
+		this.triples = resources;
 	}
 
 	/**
@@ -80,4 +94,12 @@ public class ReaderResource {
 		return attrPrefix;
 	}
 
+	/**
+	 * Gets the triples.
+	 *
+	 * @return the triples
+	 */
+	public List<Triple<String, String, String>> getTriples() {
+		return triples;
+	}
 }
