@@ -7,10 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.Page;
 import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
 import de.tudarmstadt.ukp.wikipedia.api.Wikipedia;
+import de.unimannheim.dws.wikilist.models.Pair;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -235,6 +237,25 @@ public class ProcessTable {
 		}
 		return result;
 	}
+	
+	/**
+	 * Gets the column.
+	 * 
+	 * @param table
+	 *            the table
+	 * @param column
+	 *            the column
+	 * @return the column
+	 */
+	public static List<String> getPlainColumn(List<List<String>> table, int column) {
+		List<String> result = new LinkedList<String>();
+		for (List<String> row : table) {
+			if (column < row.size())
+				result.add(row.get(column));
+		}
+		return result;
+	}
+	
 
 	/**
 	 * Extract a link from a string.

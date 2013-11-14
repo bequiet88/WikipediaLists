@@ -20,17 +20,8 @@ import org.xml.sax.InputSource;
 import de.unimannheim.dws.wikilist.CopyOfWikiList;
 import de.unimannheim.dws.wikilist.models.EvaluationResult;
 
-public class EvaluationHelper {
+public class PropertyFinderHelper {
 
-	// Cases DBPedia Eval:
-	// x-path uri x-path literal else
-	// DBPedia URL DBPedia Literal DBPedia n/a
-	// find [ ] & equals Wiki URL
-	// equals Literal
-	// else Wiki n/a
-
-	
-	
 	/**
 	 * Evaluate.
 	 *
@@ -313,26 +304,5 @@ public class EvaluationHelper {
 		return result;
 	}
 
-//	private String getDBPediaLinkFromWikiLink(String tableField) {
-//
-//		String resLink = "";
-//
-//		if (tableField.startsWith("[[")) {
-//
-//			String[] resArray = tableField.split("\\|", 2);
-//
-//			if (resArray[0].endsWith("]]")) {
-//				resLink = "<http://dbpedia.org/resource/"
-//						+ resArray[0].substring(2, resArray[0].length() - 2)
-//								.replace(" ", "_") + ">";
-//			} else {
-//				resLink = "<http://dbpedia.org/resource/"
-//						+ resArray[0].substring(2).replace(" ", "_") + ">";
-//			}
-//		}
-//
-//		return resLink;
-//
-//	}
 
 }

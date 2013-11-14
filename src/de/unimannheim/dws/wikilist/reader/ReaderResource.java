@@ -2,7 +2,9 @@ package de.unimannheim.dws.wikilist.reader;
 
 import java.util.List;
 
-import de.unimannheim.dws.wikilist.util.Triple;
+import de.unimannheim.dws.wikilist.models.Triple;
+
+
 
 /**
  * The Class ReaderResource.

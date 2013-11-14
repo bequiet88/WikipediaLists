@@ -16,7 +16,7 @@ import de.unimannheim.dws.wikilist.reader.ListPageWikiMarkupReader;
 import de.unimannheim.dws.wikilist.reader.ReaderResource;
 import de.unimannheim.dws.wikilist.util.ProcessTable;
 
-public class CopyOfWikiList {
+public class CopyOfCopyOfWikiList {
 
 	/*
 	 * Class variables
@@ -32,6 +32,8 @@ public class CopyOfWikiList {
 	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";
 	public static EvaluationResult evalRes = new EvaluationResult();
 
+	
+	
 	/**
 	 * @param args
 	 * @throws Exception
@@ -66,22 +68,6 @@ public class CopyOfWikiList {
 
 		System.out.println("done!");
 
-		List<TableRow> myRowList = new ArrayList<TableRow>();
-
-		for (List<String> list : myListsList) {
-
-			TableRow tblr = new TableRow(list);
-
-			List<String> dbpediaAttributes = new ArrayList<String>();
-			for (int i = 6; i < list.size(); i++) {
-				dbpediaAttributes.add(list.get(i));
-			}
-			tblr.setDbpediaAttributes(dbpediaAttributes);
-			myRowList.add(tblr);
-		}
-
-		CopyOfWikiList.wikiListEvaluation(myRowList);
-
 		// System.out.println("Read instance list ..");
 		//
 		// ReaderResource myCSVRes2 = new ReaderResource(
@@ -96,17 +82,11 @@ public class CopyOfWikiList {
 		//
 		// System.out.println("done!");
 
-	}
-
-	public static void wikiListEvaluation(List<TableRow> myListsList) {
-
 		/*
 		 * General settings for this run
 		 */
 
-		for (TableRow row : myListsList) {
-
-			List<String> list = row.getMyTableRow();
+		for (List<String> list : myListsList) {
 
 			if (list.get(0).contains("X"))
 				continue;
@@ -168,6 +148,11 @@ public class CopyOfWikiList {
 				continue;
 			}
 
+//			List<String> dbpediaAttributes = new ArrayList<String>();
+//			for (int i = 6; i < list.size(); i++) {
+//				dbpediaAttributes.add(list.get(i));
+//			}
+
 			/*
 			 * Find corresponding list of DBPedia instances
 			 */
@@ -191,33 +176,51 @@ public class CopyOfWikiList {
 			 * If size > 0 iterate over the instances for each DBPedia
 			 * attribute.
 			 */
-			if (dbpediaResources.size() == 0
-					|| row.getDbpediaAttributes().size() == 0)
+			if (dbpediaResources.size() == 0)
 				continue;
 
+			/*
+			 * Initialize TableRow List
+			 */
+			List<TableRow> myRowList = new ArrayList<TableRow>();
+			List<String> dbpediaAttributes = new ArrayList<String>();			
+			TableRow myCurrRow = new TableRow(list);
+			myCurrRow.setDbpediaAttributes(dbpediaAttributes);
+			
+			
 			/*
 			 * Reset column counter.
 			 */
 			columnPosition = 0;
-
-			for (String string : row.getDbpediaAttributes()) {
-
-				/*
-				 * If column is empty, continue
-				 */
-				if (string == null || string.trim().equals("")) {
-					columnPosition++;
-					continue;
-				}
+			
+			for(int i = 0; i < myTestData.getFirstTable().size(); i++) {
 
 				/*
 				 * If column is instance column, continue
 				 */
-				if (columnPosition == columnInstance
-						|| string.equals("Column of Entity")) {
+				if (columnPosition == columnInstance) {
 					columnPosition++;
+					dbpediaAttributes.add("Column of Entity");
 					continue;
 				}
+
+				List<String> colValues = ProcessTable.getColumn(
+						myTestData.getFirstTable(), i);
+						
+				for (String string2 : colValues) {
+					String dbpValue = ProcessTable.wiki2dbpLink(ProcessTable.getLink(string2));
+					// generate triple here, if dbpValue is a URL
+				}		
+
+				
+//				/*
+//				 * If column is empty, continue
+//				 */
+//				if (string == null || string.trim().equals("")) {
+//					columnPosition++;
+//					continue;
+//				}
+
 
 				System.out.println("Start processing of attribute " + string);
 
@@ -347,9 +350,8 @@ public class CopyOfWikiList {
 						int fileCount = 1;
 						File file = new File(pathToResult
 								+ "results/newTriples_"
-								+ wikiListName.replace('/', '_')
-										.replace(':', '_').replace('"', '_')
-								+ "_" + rdfTag + ".csv");
+								+ wikiListName.replace('/', '_').replace(':', '_')
+										.replace('"', '_') + "_" + rdfTag + ".csv");
 						if (file.exists()) {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
@@ -357,8 +359,8 @@ public class CopyOfWikiList {
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
 													.replace('"', '_') + "_"
-											+ rdfTag + "_" + fileCount++
-											+ ".csv", myRdfTriples);
+											+ rdfTag + "_" + fileCount++ + ".csv",
+											myRdfTriples);
 						}
 
 						else {

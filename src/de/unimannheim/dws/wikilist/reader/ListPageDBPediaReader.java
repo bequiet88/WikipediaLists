@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
+
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -14,7 +15,8 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
 
-import de.unimannheim.dws.wikilist.util.Triple;
+import de.unimannheim.dws.wikilist.models.Triple;
+
 
 /**
  * The Class ListPageDBPediaReader.
