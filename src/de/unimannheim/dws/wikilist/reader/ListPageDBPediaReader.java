@@ -22,7 +22,7 @@ import de.unimannheim.dws.wikilist.models.Triple;
  * The Class ListPageDBPediaReader.
  */
 public class ListPageDBPediaReader implements
-		IListPageReader<HashMap<String, String>> {
+		ListPageReader<HashMap<String, String>> {
 
 	/** The writer. */
 	private BufferedWriter writer = null;

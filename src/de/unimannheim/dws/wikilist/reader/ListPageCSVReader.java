@@ -10,16 +10,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-
-import de.unimannheim.dws.wikilist.models.TableRow;
 
 /**
  * The Class ListPageCSVReader.
  */
-public class ListPageCSVReader implements IListPageReader<List<List<String>>> {
+public class ListPageCSVReader implements ListPageReader<List<List<String>>> {
 
 	/** The reader. */
 	private BufferedReader reader = null;

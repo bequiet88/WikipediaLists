@@ -16,25 +16,48 @@ import de.unimannheim.dws.wikilist.reader.ListPageWikiMarkupReader;
 import de.unimannheim.dws.wikilist.reader.ReaderResource;
 import de.unimannheim.dws.wikilist.util.ProcessTable;
 
+/**
+ * The Class CopyOfWikiList.
+ */
 public class CopyOfWikiList {
 
 	/*
 	 * Class variables
 	 */
+	/** The rdf tag. */
 	public static String rdfTag = "";
+	
+	/** The rdf tag prefix. */
 	public static String rdfTagPrefix = "";
+	
+	/** The wiki list url. */
 	public static String wikiListURL = "";
+	
+	/** The wiki list name. */
 	public static String wikiListName = "";
+	
+	/** The regex instances. */
 	public static String regexInstances = "";
+	
+	/** The column instance. */
 	public static int columnInstance = -1;
+	
+	/** The capture group. */
 	public static String captureGroup = "";
+	
+	/** The column position. */
 	public static int columnPosition = 0;
+	
+	/** The path to result. */
 	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";
+	
+	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
 
 	/**
-	 * @param args
-	 * @throws Exception
+	 * The main method.
+	 *
+	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
 
@@ -98,6 +121,11 @@ public class CopyOfWikiList {
 
 	}
 
+	/**
+	 * Wiki list evaluation.
+	 *
+	 * @param myListsList the my lists list
+	 */
 	public static void wikiListEvaluation(List<TableRow> myListsList) {
 
 		/*
@@ -214,7 +242,7 @@ public class CopyOfWikiList {
 				 * If column is instance column, continue
 				 */
 				if (columnPosition == columnInstance
-						|| string.equals("Column of Entity")) {
+						|| string.equals("Column of Entity") || string.equals("error")) {
 					columnPosition++;
 					continue;
 				}

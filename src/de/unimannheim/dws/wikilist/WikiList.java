@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import de.unimannheim.dws.wikilist.evaluation.GoldDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TestDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TrainingsDataSet;
@@ -36,22 +34,39 @@ import edu.cmu.minorthird.ui.Recommended.VPHMMLearner;
 import edu.cmu.minorthird.ui.Recommended.VPSMMLearner;
 import edu.cmu.minorthird.ui.Recommended.VPSMMLearner2;
 
+/**
+ * The Class WikiList.
+ */
 public class WikiList {
 
 	/*
 	 * Class variables
 	 */
+	/** The rdf tag. */
 	public static String rdfTag = "";
+	
+	/** The rdf tag prefix. */
 	public static String rdfTagPrefix = "";
+	
+	/** The wiki list url. */
 	public static String wikiListURL = "";
+	
+	/** The wiki list name. */
 	public static String wikiListName = "";
+	
+	/** The regex instances. */
 	public static String regexInstances = "";
+	
+	/** The capture group. */
 	public static String captureGroup = "";
+	
+	/** The regex attribute. */
 	public static String regexAttribute = "";
 
 	/**
-	 * @param args
-	 * @throws Exception
+	 * The main method.
+	 *
+	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
 
@@ -63,9 +78,7 @@ public class WikiList {
 		try {
 
 			/*
-			 * Read List of Instances TODO: Make a loop for more than one row in
-			 * Instance List TODO: Read list of attributes available in one list
-			 * of instances
+			 * Read List of Instances
 			 */
 			System.out.println("Read instance list ..");
 
@@ -121,8 +134,7 @@ public class WikiList {
 			System.out.println("done!");
 
 			/*
-			 * Obtain Gold Standard Data Set with JWPL and Regex TODO: Work with
-			 * columns (may use JWPL library to access a specific column
+			 * Obtain Gold Standard Data Set with JWPL and Regex 
 			 */
 			System.out.println("Obtain Gold Data Set ..");
 

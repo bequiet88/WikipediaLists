@@ -6,7 +6,7 @@ package de.unimannheim.dws.wikilist.reader;
  *
  * @param <T> the generic type
  */
-public interface IListPageReader<T> {
+public interface ListPageReader<T> {
 
 	/**
 	 * Open input.

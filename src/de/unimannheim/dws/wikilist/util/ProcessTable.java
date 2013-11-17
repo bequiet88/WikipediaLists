@@ -14,7 +14,7 @@ import de.tudarmstadt.ukp.wikipedia.api.WikiConstants.Language;
 import de.tudarmstadt.ukp.wikipedia.api.Wikipedia;
 import de.unimannheim.dws.wikilist.models.Pair;
 
-// TODO: Auto-generated Javadoc
+
 /**
  * The Class ProcessTable.
  */

@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -12,296 +13,152 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import de.unimannheim.dws.wikilist.CopyOfWikiList;
-import de.unimannheim.dws.wikilist.models.EvaluationResult;
+import de.unimannheim.dws.wikilist.models.PropertyFinderResult;
+import de.unimannheim.dws.wikilist.models.Triple;
 
+
+/**
+ * The Class PropertyFinderHelper.
+ */
 public class PropertyFinderHelper {
 
 	/**
-	 * Evaluate.
+	 * Find uri property.
 	 *
-	 * @param wikiTable the wiki table
 	 * @param dbpValues the dbp values
-	 * @param tag the tag
-	 * @return the evaluation result
+	 * @return the property finder result
 	 * @throws Exception the exception
 	 */
-	public String findUriProperty(HashMap<String, String> dbpValues) throws Exception {
+	public PropertyFinderResult findUriProperty(
+			HashMap<String, String> dbpValues) throws Exception {
 
 		/*
-		 * Initiate Evaluation Result.
+		 * Initiate Property Finder Result.
 		 */
-		EvaluationResult result = new EvaluationResult();
-		result.rdfTriples = new ArrayList<List<String>>();
+		PropertyFinderResult result = new PropertyFinderResult();
+		HashMap<String, Double> resultMap = new HashMap<String, Double>();
+		result.setMap(resultMap);
+
+		List<Triple<String, String, String>> completeTriples = new ArrayList<Triple<String, String, String>>();
 
 		/*
-		 * Iterate over wikiTable to mark all list elements already having
-		 * assigned a value in DBPedia
+		 * Iterate over HashMap to retrieve property from XML
 		 */
-		int rowCount = 0;
-		for (List<String> tableRow : wikiTable) {
+		for (String key : dbpValues.keySet()) {
 
-			String link = ProcessTable.wiki2dbpLink(ProcessTable
-					.getLink(tableRow.get(CopyOfWikiList.columnInstance)));
+			/*
+			 * Initiate XML Parser
+			 */
+			InputSource source = new InputSource(new StringReader(
+					dbpValues.get(key)));
 
-			System.out.println("Wiki to DBPedia Link, Row " + ++rowCount + ": "
-					+ link);
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db;
 
-			if (dbpValues.containsKey(link)) {
+			db = dbf.newDocumentBuilder();
+			Document document = db.parse(source);
 
-				boolean matchFound = false;
+			XPathFactory xpathFactory = XPathFactory.newInstance();
+			XPath xpath = xpathFactory.newXPath();
 
-				/*
-				 * Initiate XML Parser
-				 */
-				InputSource source = new InputSource(new StringReader(
-						dbpValues.get(link)));
+			/*
+			 * Extract property Uri values from DBPedia and transform to
+			 * comparable format
+			 */
 
-				DocumentBuilderFactory dbf = DocumentBuilderFactory
-						.newInstance();
-				DocumentBuilder db;
+			XPathExpression expr = xpath
+					.compile("//binding[@name = \"attr\"]/uri/text()");
 
-				db = dbf.newDocumentBuilder();
-				Document document = db.parse(source);
+			List<String> uris = new ArrayList<String>();
+			NodeList nodes = (NodeList) expr.evaluate(document,
+					XPathConstants.NODESET);
+			for (int i = 0; i < nodes.getLength(); i++)
+				uris.add(nodes.item(i).getNodeValue());
 
-				XPathFactory xpathFactory = XPathFactory.newInstance();
-				XPath xpath = xpathFactory.newXPath();
+			if (uris.size() > 0) {
 
-				/*
-				 * Extract Uri values from DBPedia and transform to comparable
-				 * format
-				 */
+				Triple<String, String, String> triple = null;
 
-				XPathExpression expr = xpath.compile("//binding[@name = \""
-						+ CopyOfWikiList.rdfTag + "\"]/uri/text()");
-
-				// "/Employees/Employee[gender='Female']/name/text()");
-
-				List<String> uris = new ArrayList<String>();
-				NodeList nodes = (NodeList) expr.evaluate(document,
-						XPathConstants.NODESET);
-				for (int i = 0; i < nodes.getLength(); i++)
-					uris.add(nodes.item(i).getNodeValue());
-
-				if (uris.size() > 0) {
-
-					for (String dbpUri : uris) {
-
-						String matchingValueUri = ProcessTable
-								.wiki2dbpLink(ProcessTable.getLink(tableRow
-										.get(CopyOfWikiList.columnPosition)));
-						String matchingValueLiteral = dbpUri.replace(
-								"http://dbpedia.org/resource/", "").replace(
-								"_", " ");
-
-						/*
-						 * Check DBPedia Uri and Wiki Uri
-						 */
-
-						if (!matchFound && matchingValueUri.contains(dbpUri)) {
-							result.noOfDBPUriWikiUri++;
-							matchFound = true;
-							break;
-						}
-
-						/*
-						 * Check DBPedia Uri and Wiki Literal
-						 */
-						else if (!matchFound
-								&& JaccardSimilarity.jaccardSimilarity(tableRow
-										.get(CopyOfWikiList.columnPosition),
-										matchingValueLiteral) > 0.7) {
-							result.noOfDBPUriWikiLiteral++;
-							matchFound = true;
-							break;
-						}
-
-						/*
-						 * Check DBPedia Uri and Wiki Empty
-						 */
-						else if (!matchFound
-								&& (tableRow.get(CopyOfWikiList.columnPosition).trim().equals("")
-										|| tableRow.get(CopyOfWikiList.columnPosition).equals(
-												"&nbsp;") || tableRow.get(CopyOfWikiList.columnPosition).trim().equals(
-														"-"))) {
-							result.noOfDBPUriWikiEmpty++;
-							matchFound = true;
-							break;
-						}
-
-					}
-					if (matchFound)
-						continue;
-				}
-				/*
-				 * If there is a DBPedia Uri but no match was found, add as Wiki
-				 * Empty
-				 */
-				if (uris.size() > 0 && !matchFound) {
-					result.noOfDBPUriWikiEmpty++;
-					matchFound = true;
-					continue;
-				}
-
-				/*
-				 * Extract Literal values from DBPedia and transform to
-				 * comparable format
-				 */
-
-				expr = xpath.compile("//binding[@name = \""
-						+ CopyOfWikiList.rdfTag + "\"]/literal/text()");
-
-				List<String> literals = new ArrayList<String>();
-				nodes = (NodeList) expr.evaluate(document,
-						XPathConstants.NODESET);
-				for (int i = 0; i < nodes.getLength(); i++)
-					literals.add(nodes.item(i).getNodeValue());
-
-				if (literals.size() > 0) {
-
-					for (String dbpLiteral : literals) {
-
-						/*
-						 * Check DBPedia Literal and Wiki Uri
-						 */
-						String matchingValueUri = ProcessTable
-								.wiki2dbpLink(ProcessTable.getLink(tableRow
-										.get(CopyOfWikiList.columnPosition)));
-
-						if (!matchFound
-								&& !matchingValueUri.equals("")
-								&& JaccardSimilarity.jaccardSimilarity(tableRow
-										.get(CopyOfWikiList.columnPosition),
-										dbpLiteral) > 0.45) {
-							result.noOfDBPLiteralWikiUri++;
-							matchFound = true;
-
-							/*
-							 * Add match to RDF Triple List
-							 */
-							List<String> rdfTriple = new ArrayList<String>();
-							rdfTriple.add(link);
-							rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
-									+ CopyOfWikiList.rdfTag);
-							rdfTriple.add(matchingValueUri);
-							result.rdfTriples.add(rdfTriple);
-							break;
-						}
-
-						/*
-						 * Check DBPedia Literal and Wiki Literal
-						 */
-						else if (!matchFound
-								&& JaccardSimilarity.jaccardSimilarity(tableRow
-										.get(CopyOfWikiList.columnPosition),
-										dbpLiteral) > 0.8) {
-							result.noOfDBPLiteralWikiLiteral++;
-							matchFound = true;
-							break;
-						}
-
-						/*
-						 * Check DBPedia Literal and Wiki Empty
-						 */
-						else if (!matchFound
-								&& (tableRow.get(CopyOfWikiList.columnPosition)
-										.trim().equals("")
-										|| tableRow.get(
-												CopyOfWikiList.columnPosition)
-												.equals("&nbsp;") || tableRow
-										.get(CopyOfWikiList.columnPosition)
-										.trim().equals("-"))) {
-							result.noOfDBPLiteralWikiEmpty++;
-							matchFound = true;
-							break;
-						}
-
-					}
-					if (matchFound)
-						continue;
-				}
-				/*
-				 * If there is a DBPedia Literal but no match was found, add as
-				 * Wiki Empty
-				 */
-				if (literals.size() > 0 && !matchFound) {
-					result.noOfDBPLiteralWikiEmpty++;
-					matchFound = true;
-					continue;
-				}
-
-				/*
-				 * In case neither a Uri nor a literal is present in DBPedia
-				 * Entry, process as DBPedia Empty
-				 */
-
-				/*
-				 * Check DBPedia Empty and Wiki Uri
-				 */
-
-				String matchingValueUri = ProcessTable
-						.wiki2dbpLink(ProcessTable.getLink(tableRow
-								.get(CopyOfWikiList.columnPosition)));
-
-				if (!matchFound && !matchingValueUri.equals("")) {
-					result.noOfDBPEmptyWikiUri++;
-					matchFound = true;
+				for (String dbpUri : uris) {
 
 					/*
-					 * Add match to RDF Triple List
+					 * Initialize triple and add to complete list
 					 */
-					List<String> rdfTriple = new ArrayList<String>();
-					rdfTriple.add(link);
-					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
-							+ CopyOfWikiList.rdfTag);
-					rdfTriple.add(matchingValueUri);
-					result.rdfTriples.add(rdfTriple);
+					triple = new Triple<String, String, String>();
+					String[] tripleValues = key.split("::", 3);
+					triple.setFirst(tripleValues[0]);
+					triple.setSecond("<" + dbpUri + ">");
+					triple.setThird(tripleValues[2]);
+					completeTriples.add(triple);
+
 				}
+			}
+		}
 
-				/*
-				 * Check DBPedia Empty and Wiki Literal
-				 */
-				else if (!matchFound
-						&& !tableRow.get(CopyOfWikiList.columnPosition).trim()
-								.equals("")
-						&& !tableRow.get(CopyOfWikiList.columnPosition).equals(
-								"&nbsp;")
-						&& !tableRow.get(CopyOfWikiList.columnPosition).trim().equals(
-								"-")) {
-					result.noOfDBPEmptyWikiLiteral++;
-					matchFound = true;
+		/*
+		 * Iterate over triples and build hashmap with property as key and all
+		 * matching triples as values
+		 */
 
-					/*
-					 * Add match to RDF Triple List
-					 */
-					List<String> rdfTriple = new ArrayList<String>();
-					rdfTriple.add(link);
-					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
-							+ CopyOfWikiList.rdfTag);
-					rdfTriple.add(tableRow.get(CopyOfWikiList.columnPosition));
-					result.rdfTriples.add(rdfTriple);
+		if (completeTriples.size() > 0) {
+
+			HashMap<String, List<Triple<String, String, String>>> tripleMap = new HashMap<String, List<Triple<String, String, String>>>();
+
+			for (Triple<String, String, String> triple : completeTriples) {
+
+				String prop = triple.getSecond();
+				List<Triple<String, String, String>> tripleList = new ArrayList<Triple<String, String, String>>();
+
+				if (!tripleMap.containsKey(prop)) {
+					tripleList.add(triple);
+					tripleMap.put(prop, tripleList);
+
+				} else {
+					tripleList = tripleMap.get(prop);
+					tripleList.add(triple);
+					tripleMap.put(prop, tripleList);
 				}
-
-				/*
-				 * Everything that reaches this code is dealt as DBPedia Empty
-				 * and Wiki Empty
-				 */
-				else {
-					result.noOfDBPEmptyWikiEmpty++;
-					matchFound = true;
-				}
-
 			}
 
+			/*
+			 * Calculate Confidence of each property
+			 */
+			for (String prop : tripleMap.keySet()) {
+				resultMap.put(prop, (double) tripleMap.get(prop).size()
+						/ completeTriples.size());
+			}
 		}
 
 		return result;
+
 	}
 
+	/**
+	 * Return max confidence.
+	 *
+	 * @param res the res
+	 * @return the string
+	 */
+	public String returnMaxConfidence(PropertyFinderResult res) {
+
+		if (res.getMap().size() == 0) {
+			return "error";
+		} else {
+			// find max
+			double maxConf = 0;
+			String maxProp = "";
+			for (Map.Entry<String, Double> entry : res.getMap().entrySet()) {
+				if (entry.getValue() > maxConf) {
+					maxProp = entry.getKey();
+					maxConf = entry.getValue();
+				}
+			}
+			return maxProp;
+		}
+	}
 
 }

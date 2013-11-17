@@ -16,7 +16,7 @@ import de.unimannheim.dws.wikilist.util.SSHConnection;
 /**
  * The Class ListPageWikiMarkupReader.
  */
-public class ListPageWikiMarkupReader implements IListPageReader<List<String>> {
+public class ListPageWikiMarkupReader implements ListPageReader<List<String>> {
 	
 	/** The writer. */
 	BufferedWriter writer = null;

@@ -47,7 +47,9 @@ public class EvaluationHelper {
 		 * Initiate Evaluation Result.
 		 */
 		EvaluationResult result = new EvaluationResult();
-		result.rdfTriples = new ArrayList<List<String>>();
+		result.setRdfTriples(new ArrayList<List<String>>());
+		
+		List<List<String>> helperTriple = new ArrayList<List<String>>();
 
 		/*
 		 * Iterate over wikiTable to mark all list elements already having
@@ -114,7 +116,7 @@ public class EvaluationHelper {
 						 */
 
 						if (!matchFound && matchingValueUri.contains(dbpUri)) {
-							result.noOfDBPUriWikiUri++;
+							result.setNoOfDBPUriWikiUri(result.getNoOfDBPUriWikiUri() + 1);
 							matchFound = true;
 							break;
 						}
@@ -126,7 +128,7 @@ public class EvaluationHelper {
 								&& JaccardSimilarity.jaccardSimilarity(tableRow
 										.get(CopyOfWikiList.columnPosition),
 										matchingValueLiteral) > 0.7) {
-							result.noOfDBPUriWikiLiteral++;
+							result.setNoOfDBPUriWikiLiteral(result.getNoOfDBPUriWikiLiteral() + 1);
 							matchFound = true;
 							break;
 						}
@@ -139,7 +141,7 @@ public class EvaluationHelper {
 										|| tableRow.get(CopyOfWikiList.columnPosition).equals(
 												"&nbsp;") || tableRow.get(CopyOfWikiList.columnPosition).trim().equals(
 														"-"))) {
-							result.noOfDBPUriWikiEmpty++;
+							result.setNoOfDBPUriWikiEmpty(result.getNoOfDBPUriWikiEmpty() + 1);
 							matchFound = true;
 							break;
 						}
@@ -153,7 +155,7 @@ public class EvaluationHelper {
 				 * Empty
 				 */
 				if (uris.size() > 0 && !matchFound) {
-					result.noOfDBPUriWikiEmpty++;
+					result.setNoOfDBPUriWikiEmpty(result.getNoOfDBPUriWikiEmpty() + 1);
 					matchFound = true;
 					continue;
 				}
@@ -188,7 +190,7 @@ public class EvaluationHelper {
 								&& JaccardSimilarity.jaccardSimilarity(tableRow
 										.get(CopyOfWikiList.columnPosition),
 										dbpLiteral) > 0.45) {
-							result.noOfDBPLiteralWikiUri++;
+							result.setNoOfDBPLiteralWikiUri(result.getNoOfDBPLiteralWikiUri() + 1);
 							matchFound = true;
 
 							/*
@@ -199,7 +201,9 @@ public class EvaluationHelper {
 							rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
 									+ CopyOfWikiList.rdfTag);
 							rdfTriple.add(matchingValueUri);
-							result.rdfTriples.add(rdfTriple);
+							helperTriple = result.getRdfTriples();
+							helperTriple.add(rdfTriple);
+							result.setRdfTriples(helperTriple);
 							break;
 						}
 
@@ -210,7 +214,7 @@ public class EvaluationHelper {
 								&& JaccardSimilarity.jaccardSimilarity(tableRow
 										.get(CopyOfWikiList.columnPosition),
 										dbpLiteral) > 0.8) {
-							result.noOfDBPLiteralWikiLiteral++;
+							result.setNoOfDBPLiteralWikiLiteral(result.getNoOfDBPLiteralWikiLiteral() + 1);
 							matchFound = true;
 							break;
 						}
@@ -226,7 +230,7 @@ public class EvaluationHelper {
 												.equals("&nbsp;") || tableRow
 										.get(CopyOfWikiList.columnPosition)
 										.trim().equals("-"))) {
-							result.noOfDBPLiteralWikiEmpty++;
+							result.setNoOfDBPLiteralWikiEmpty(result.getNoOfDBPLiteralWikiEmpty() + 1);
 							matchFound = true;
 							break;
 						}
@@ -240,7 +244,7 @@ public class EvaluationHelper {
 				 * Wiki Empty
 				 */
 				if (literals.size() > 0 && !matchFound) {
-					result.noOfDBPLiteralWikiEmpty++;
+					result.setNoOfDBPLiteralWikiEmpty(result.getNoOfDBPLiteralWikiEmpty() + 1);
 					matchFound = true;
 					continue;
 				}
@@ -259,7 +263,7 @@ public class EvaluationHelper {
 								.get(CopyOfWikiList.columnPosition)));
 
 				if (!matchFound && !matchingValueUri.equals("")) {
-					result.noOfDBPEmptyWikiUri++;
+					result.setNoOfDBPEmptyWikiUri(result.getNoOfDBPEmptyWikiUri() + 1);
 					matchFound = true;
 
 					/*
@@ -270,7 +274,9 @@ public class EvaluationHelper {
 					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
 							+ CopyOfWikiList.rdfTag);
 					rdfTriple.add(matchingValueUri);
-					result.rdfTriples.add(rdfTriple);
+					helperTriple = result.getRdfTriples();
+					helperTriple.add(rdfTriple);
+					result.setRdfTriples(helperTriple);
 				}
 
 				/*
@@ -283,7 +289,7 @@ public class EvaluationHelper {
 								"&nbsp;")
 						&& !tableRow.get(CopyOfWikiList.columnPosition).trim().equals(
 								"-")) {
-					result.noOfDBPEmptyWikiLiteral++;
+					result.setNoOfDBPEmptyWikiLiteral(result.getNoOfDBPEmptyWikiLiteral() + 1);
 					matchFound = true;
 
 					/*
@@ -294,7 +300,9 @@ public class EvaluationHelper {
 					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
 							+ CopyOfWikiList.rdfTag);
 					rdfTriple.add(tableRow.get(CopyOfWikiList.columnPosition));
-					result.rdfTriples.add(rdfTriple);
+					helperTriple = result.getRdfTriples();
+					helperTriple.add(rdfTriple);
+					result.setRdfTriples(helperTriple);
 				}
 
 				/*
@@ -302,7 +310,7 @@ public class EvaluationHelper {
 				 * and Wiki Empty
 				 */
 				else {
-					result.noOfDBPEmptyWikiEmpty++;
+					result.setNoOfDBPEmptyWikiEmpty(result.getNoOfDBPEmptyWikiEmpty() + 1);
 					matchFound = true;
 				}
 

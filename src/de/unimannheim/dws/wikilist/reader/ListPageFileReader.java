@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * The Class ListPageFileReader.
  */
-public class ListPageFileReader implements IListPageReader<List<String>> {
+public class ListPageFileReader implements ListPageReader<List<String>> {
 
 	/** The reader. */
 	BufferedReader reader = null;

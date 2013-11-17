@@ -3,15 +3,12 @@ package de.unimannheim.dws.wikilist;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
-import de.unimannheim.dws.wikilist.evaluation.EvaluationDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TestDataSet;
 import de.unimannheim.dws.wikilist.models.EvaluationResult;
+import de.unimannheim.dws.wikilist.models.PropertyFinderResult;
 import de.unimannheim.dws.wikilist.models.TableRow;
 import de.unimannheim.dws.wikilist.models.Triple;
 import de.unimannheim.dws.wikilist.reader.ListPageCSVReader;
@@ -21,25 +18,48 @@ import de.unimannheim.dws.wikilist.reader.ReaderResource;
 import de.unimannheim.dws.wikilist.util.ProcessTable;
 import de.unimannheim.dws.wikilist.util.PropertyFinderHelper;
 
+/**
+ * The Class CopyOfCopyOfWikiList.
+ */
 public class CopyOfCopyOfWikiList {
 
 	/*
 	 * Class variables
 	 */
+	/** The rdf tag. */
 	public static String rdfTag = "";
+	
+	/** The rdf tag prefix. */
 	public static String rdfTagPrefix = "";
+	
+	/** The wiki list url. */
 	public static String wikiListURL = "";
+	
+	/** The wiki list name. */
 	public static String wikiListName = "";
+	
+	/** The regex instances. */
 	public static String regexInstances = "";
+	
+	/** The column instance. */
 	public static int columnInstance = -1;
+	
+	/** The capture group. */
 	public static String captureGroup = "";
+	
+	/** The column position. */
 	public static int columnPosition = 0;
+	
+	/** The path to result. */
 	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";
+	
+	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
 
 	/**
-	 * @param args
-	 * @throws Exception
+	 * The main method.
+	 *
+	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
 
@@ -256,65 +276,75 @@ public class CopyOfCopyOfWikiList {
 				ReaderResource myDbpRes = new ReaderResource(myTriples);
 				ListPageDBPediaReader myDbpReader = new ListPageDBPediaReader();
 				myDbpReader.openInput(myDbpRes);
-				
+
 				PropertyFinderHelper myPropFinder = new PropertyFinderHelper();
+
+				PropertyFinderResult myPropRes = null;
+
 				try {
-					dbpediaAttributes.add(myPropFinder.findUriProperty(myDbpReader.readInput()));
+					myPropRes = myPropFinder.findUriProperty(myDbpReader
+							.readInput());
+					dbpediaAttributes.add(myPropFinder
+							.returnMaxConfidence(myPropRes));
 				} catch (Exception e) {
 					e.printStackTrace();
+					dbpediaAttributes.add("error");
 					columnPosition++;
 					continue;
 				}
 				myDbpReader.close();
-				
-//
-//				/*
-//				 * Write Result Matrix to file
-//				 */
-//
-//				try {
-//					int fileCount = 1;
-//					File file = new File(pathToResult
-//							+ "results/evaluation_"
-//							+ wikiListName.replace('/', '_').replace(':', '_')
-//									.replace('"', '_') + "_" + rdfTag + ".csv");
-//					if (file.exists()) {
-//						myEvalData.getEvalRes().writeOutputToCsv(
-//								pathToResult
-//										+ "results/evaluation_"
-//										+ wikiListName.replace('/', '_')
-//												.replace(':', '_')
-//												.replace('"', '_') + "_"
-//										+ rdfTag + "_" + fileCount++ + ".csv",
-//								myEvalMatrix);
-//					}
-//
-//					else {
-//						myEvalData.getEvalRes().writeOutputToCsv(
-//								pathToResult
-//										+ "results/evaluation_"
-//										+ wikiListName.replace('/', '_')
-//												.replace(':', '_')
-//												.replace('"', '_') + "_"
-//										+ rdfTag + ".csv", myEvalMatrix);
-//					}
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
 
-				
+				/*
+				 * Write Resulting confidences to file
+				 */
+				if (myPropRes != null) {
+
+					try {
+						int fileCount = 1;
+						File file = new File(pathToResult
+								+ "results/confidences_"
+								+ wikiListName.replace('/', '_')
+										.replace(':', '_').replace('"', '_')
+								+ "_columne_" + i + ".csv");
+						if (file.exists()) {
+							myPropRes.writeOutputToCsv(
+									pathToResult
+											+ "results/evaluation_"
+											+ wikiListName.replace('/', '_')
+													.replace(':', '_')
+													.replace('"', '_')
+											+ "__columne_" + i + "_"
+											+ fileCount++ + ".csv",
+											myPropRes.getMap());
+						}
+
+						else {
+							myPropRes.writeOutputToCsv(
+									pathToResult
+											+ "results/evaluation_"
+											+ wikiListName.replace('/', '_')
+													.replace(':', '_')
+													.replace('"', '_')
+											+ "__columne_" + i + ".csv",
+											myPropRes.getMap());
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
 				System.out.println("done!");
 				columnPosition++;
 			}
-			
+
 			myRowList.add(myCurrRow);
-			
+
 		}
-		
+
 		/*
 		 * Pass List of Table Rows to new value evaluation
 		 */
-		
+
 		CopyOfWikiList.wikiListEvaluation(myRowList);
 
 	}
