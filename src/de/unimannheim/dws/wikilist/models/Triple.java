@@ -1,4 +1,4 @@
-package de.unimannheim.dws.wikilist.util;
+package de.unimannheim.dws.wikilist.models;
 
 public class Triple<T1, T2, T3> {
 

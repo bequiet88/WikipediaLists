@@ -1,4 +1,4 @@
-package de.unimannheim.dws.wikilist.util;
+package de.unimannheim.dws.wikilist.models;
 
 import java.io.BufferedWriter;
 import java.io.File;

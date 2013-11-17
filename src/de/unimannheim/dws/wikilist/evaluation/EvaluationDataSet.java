@@ -3,9 +3,10 @@ package de.unimannheim.dws.wikilist.evaluation;
 import java.util.HashMap;
 import java.util.List;
 
+
 import de.unimannheim.dws.wikilist.CopyOfWikiList;
+import de.unimannheim.dws.wikilist.models.EvaluationResult;
 import de.unimannheim.dws.wikilist.util.EvaluationHelper;
-import de.unimannheim.dws.wikilist.util.EvaluationResult;
 
 /**
  * The Class EvaluationDataSet.
