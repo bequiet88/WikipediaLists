@@ -1,12 +1,12 @@
 package de.unimannheim.dws.wikilist.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 
 import de.tudarmstadt.ukp.wikipedia.api.DatabaseConfiguration;
 import de.tudarmstadt.ukp.wikipedia.api.Page;
@@ -230,7 +230,7 @@ public class ProcessTable {
 	 * @return the column
 	 */
 	public static List<String> getColumn(List<List<String>> table, int column) {
-		List<String> result = new LinkedList<String>();
+		List<String> result = new ArrayList<String>();
 		for (List<String> row : table) {
 			if (column < row.size())
 				result.add(wiki2dbpLink(getLink(row.get(column))));
@@ -248,7 +248,7 @@ public class ProcessTable {
 	 * @return the column
 	 */
 	public static List<String> getPlainColumn(List<List<String>> table, int column) {
-		List<String> result = new LinkedList<String>();
+		List<String> result = new ArrayList<String>();
 		for (List<String> row : table) {
 			if (column < row.size())
 				result.add(row.get(column));

@@ -31,8 +31,7 @@ public class PropertyFinderHelper {
 	 * @return the evaluation result
 	 * @throws Exception the exception
 	 */
-	public EvaluationResult evaluate(List<List<String>> wikiTable,
-			HashMap<String, String> dbpValues, String tag) throws Exception {
+	public String findUriProperty(HashMap<String, String> dbpValues) throws Exception {
 
 		/*
 		 * Initiate Evaluation Result.

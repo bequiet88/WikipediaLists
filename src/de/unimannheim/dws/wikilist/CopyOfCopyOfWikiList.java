@@ -3,18 +3,23 @@ package de.unimannheim.dws.wikilist;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import de.unimannheim.dws.wikilist.evaluation.EvaluationDataSet;
 import de.unimannheim.dws.wikilist.evaluation.TestDataSet;
 import de.unimannheim.dws.wikilist.models.EvaluationResult;
 import de.unimannheim.dws.wikilist.models.TableRow;
+import de.unimannheim.dws.wikilist.models.Triple;
 import de.unimannheim.dws.wikilist.reader.ListPageCSVReader;
 import de.unimannheim.dws.wikilist.reader.ListPageDBPediaReader;
 import de.unimannheim.dws.wikilist.reader.ListPageWikiMarkupReader;
 import de.unimannheim.dws.wikilist.reader.ReaderResource;
 import de.unimannheim.dws.wikilist.util.ProcessTable;
+import de.unimannheim.dws.wikilist.util.PropertyFinderHelper;
 
 public class CopyOfCopyOfWikiList {
 
@@ -32,8 +37,6 @@ public class CopyOfCopyOfWikiList {
 	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";
 	public static EvaluationResult evalRes = new EvaluationResult();
 
-	
-	
 	/**
 	 * @param args
 	 * @throws Exception
@@ -66,6 +69,8 @@ public class CopyOfCopyOfWikiList {
 			e1.printStackTrace();
 		}
 
+		List<TableRow> myRowList = new ArrayList<TableRow>();
+
 		System.out.println("done!");
 
 		// System.out.println("Read instance list ..");
@@ -82,10 +87,6 @@ public class CopyOfCopyOfWikiList {
 		//
 		// System.out.println("done!");
 
-		/*
-		 * General settings for this run
-		 */
-
 		for (List<String> list : myListsList) {
 
 			if (list.get(0).contains("X"))
@@ -93,6 +94,10 @@ public class CopyOfCopyOfWikiList {
 
 			if (!list.get(3).equals("Table"))
 				continue;
+
+			/*
+			 * General settings for this run
+			 */
 
 			wikiListURL = list.get(1);
 			wikiListName = wikiListURL.replace("http://en.wikipedia.org/wiki/",
@@ -148,16 +153,22 @@ public class CopyOfCopyOfWikiList {
 				continue;
 			}
 
-//			List<String> dbpediaAttributes = new ArrayList<String>();
-//			for (int i = 6; i < list.size(); i++) {
-//				dbpediaAttributes.add(list.get(i));
-//			}
+			// List<String> dbpediaAttributes = new ArrayList<String>();
+			// for (int i = 6; i < list.size(); i++) {
+			// dbpediaAttributes.add(list.get(i));
+			// }
 
 			/*
-			 * Find corresponding list of DBPedia instances
+			 * Find list of DBPedia instances
 			 */
 			List<String> dbpediaResources = ProcessTable.getColumn(
 					myTestData.getFirstTable(), columnInstance);
+			HashMap<String, String> dbpediaResMap = new HashMap<String, String>();
+			int counter = 0;
+			for (String string : dbpediaResources) {
+				dbpediaResMap.put("row" + counter, string);
+				counter++;
+			}
 
 			//
 			// for (List<String> instanceList : myInstancesList) {
@@ -176,24 +187,22 @@ public class CopyOfCopyOfWikiList {
 			 * If size > 0 iterate over the instances for each DBPedia
 			 * attribute.
 			 */
-			if (dbpediaResources.size() == 0)
+			if (dbpediaResMap.size() == 0)
 				continue;
 
 			/*
-			 * Initialize TableRow List
+			 * Initialize TableRow of Sample List Table
 			 */
-			List<TableRow> myRowList = new ArrayList<TableRow>();
-			List<String> dbpediaAttributes = new ArrayList<String>();			
 			TableRow myCurrRow = new TableRow(list);
+			List<String> dbpediaAttributes = new ArrayList<String>();
 			myCurrRow.setDbpediaAttributes(dbpediaAttributes);
-			
-			
+
 			/*
 			 * Reset column counter.
 			 */
 			columnPosition = 0;
-			
-			for(int i = 0; i < myTestData.getFirstTable().size(); i++) {
+
+			for (int i = 0; i < myTestData.getFirstTable().size(); i++) {
 
 				/*
 				 * If column is instance column, continue
@@ -204,183 +213,110 @@ public class CopyOfCopyOfWikiList {
 					continue;
 				}
 
-				List<String> colValues = ProcessTable.getColumn(
+				/*
+				 * Retrieve content for this column of JWPL table
+				 */
+				List<String> colValues = ProcessTable.getPlainColumn(
 						myTestData.getFirstTable(), i);
-						
+				/*
+				 * Initialize Triple List for this column
+				 */
+				List<Triple<String, String, String>> myTriples = new ArrayList<Triple<String, String, String>>();
+
+				/*
+				 * Iterate over column
+				 */
 				for (String string2 : colValues) {
-					String dbpValue = ProcessTable.wiki2dbpLink(ProcessTable.getLink(string2));
-					// generate triple here, if dbpValue is a URL
-				}		
+					String dbpValue = ProcessTable.wiki2dbpLink(ProcessTable
+							.getLink(string2));
 
+					/*
+					 * Generate triple
+					 */
+					if (dbpValue != "") {
+						Triple<String, String, String> myTriple = new Triple<String, String, String>();
+						myTriple.setFirst(dbpediaResMap.get("row" + i));
+						myTriple.setSecond("$property");
+						myTriple.setThird(dbpValue);
+						myTriples.add(myTriple);
+					}
+
+					/*
+					 * TODO: Process literal values of JWPL table
+					 */
+					else {
+
+					}
+
+				}
+
+				/*
+				 * Query DBPedia to find suitable Property
+				 */
+				ReaderResource myDbpRes = new ReaderResource(myTriples);
+				ListPageDBPediaReader myDbpReader = new ListPageDBPediaReader();
+				myDbpReader.openInput(myDbpRes);
 				
-//				/*
-//				 * If column is empty, continue
-//				 */
-//				if (string == null || string.trim().equals("")) {
-//					columnPosition++;
-//					continue;
-//				}
-
-
-				System.out.println("Start processing of attribute " + string);
-
-				String[] dbpediaAttribute = string.split(":");
-				rdfTag = dbpediaAttribute[1];
-				rdfTagPrefix = dbpediaAttribute[0];
-
-				/****************************************************************
-				 * Obtain Evaluation Data Set with JWPL and DBPedia Values
-				 * merged
-				 ****************************************************************/
-
-				System.out.println("Obtain Evaluation Data Set ..");
-
-				ReaderResource myEvalRes = new ReaderResource(dbpediaResources,
-						rdfTag, rdfTagPrefix);
-
-				ListPageDBPediaReader myDBPReader = new ListPageDBPediaReader();
-				myDBPReader.openInput(myEvalRes);
-
-				HashMap<String, String> myDBPValues;
-				// try {
-				myDBPValues = myDBPReader.readInput();
-				// } catch (Exception e) {
-				// e.printStackTrace();
-				// columnPosition++;
-				// continue;
-				// }
-				myDBPReader.close();
-
-				EvaluationDataSet myEvalData = new EvaluationDataSet();
+				PropertyFinderHelper myPropFinder = new PropertyFinderHelper();
 				try {
-					myEvalData.create(myTestData, myDBPValues);
+					dbpediaAttributes.add(myPropFinder.findUriProperty(myDbpReader.readInput()));
 				} catch (Exception e) {
 					e.printStackTrace();
 					columnPosition++;
 					continue;
 				}
+				myDbpReader.close();
+				
+//
+//				/*
+//				 * Write Result Matrix to file
+//				 */
+//
+//				try {
+//					int fileCount = 1;
+//					File file = new File(pathToResult
+//							+ "results/evaluation_"
+//							+ wikiListName.replace('/', '_').replace(':', '_')
+//									.replace('"', '_') + "_" + rdfTag + ".csv");
+//					if (file.exists()) {
+//						myEvalData.getEvalRes().writeOutputToCsv(
+//								pathToResult
+//										+ "results/evaluation_"
+//										+ wikiListName.replace('/', '_')
+//												.replace(':', '_')
+//												.replace('"', '_') + "_"
+//										+ rdfTag + "_" + fileCount++ + ".csv",
+//								myEvalMatrix);
+//					}
+//
+//					else {
+//						myEvalData.getEvalRes().writeOutputToCsv(
+//								pathToResult
+//										+ "results/evaluation_"
+//										+ wikiListName.replace('/', '_')
+//												.replace(':', '_')
+//												.replace('"', '_') + "_"
+//										+ rdfTag + ".csv", myEvalMatrix);
+//					}
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
 
-				List<List<String>> myEvalMatrix = myEvalData.getEvalRes()
-						.getEvalMatrix();
-
-				/*
-				 * Write Result Matrix to file
-				 */
-
-				try {
-					int fileCount = 1;
-					File file = new File(pathToResult
-							+ "results/evaluation_"
-							+ wikiListName.replace('/', '_').replace(':', '_')
-									.replace('"', '_') + "_" + rdfTag + ".csv");
-					if (file.exists()) {
-						myEvalData.getEvalRes().writeOutputToCsv(
-								pathToResult
-										+ "results/evaluation_"
-										+ wikiListName.replace('/', '_')
-												.replace(':', '_')
-												.replace('"', '_') + "_"
-										+ rdfTag + "_" + fileCount++ + ".csv",
-								myEvalMatrix);
-					}
-
-					else {
-						myEvalData.getEvalRes().writeOutputToCsv(
-								pathToResult
-										+ "results/evaluation_"
-										+ wikiListName.replace('/', '_')
-												.replace(':', '_')
-												.replace('"', '_') + "_"
-										+ rdfTag + ".csv", myEvalMatrix);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				/*
-				 * Calculate Totals
-				 */
-				evalRes.add(myEvalData.getEvalRes());
-				try {
-					evalRes.writeOutputToCsv(pathToResult
-							+ "results/evaluation_total.csv",
-							evalRes.getEvalMatrix());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				/*
-				 * Prepare RDF Output
-				 */
-				List<List<String>> myRdfTriples = myEvalData.getEvalRes()
-						.getRdfTriples();
-
-				if (myRdfTriples != null) {
-
-					// List<Model> newRdfTriples = new ArrayList<Model>();
-					// for (List<String> list2 : myRdfTriples) {
-					//
-					// // Create an empty graph
-					// Model model = ModelFactory.createDefaultModel();
-					//
-					// // Create the resource
-					// Resource postcon = model.createResource(list2
-					// .get(0));
-					//
-					// // Create the predicate (property)
-					// Property value = model.createProperty(
-					// list2.get(1), "value");
-					//
-					// // Add the properties with associated values
-					// // (objects)
-					// postcon.addProperty(value, list2.get(2));
-					// // postcon.addProperty(related,
-					// //
-					// "http://burningbird.net/articles/monsters2.htm");
-					//
-					// // Print RDF/XML of model to system output
-					// model.write(new PrintWriter(System.out));
-					// newRdfTriples.add(model);
-					// }
-
-					/*
-					 * Write new RDF Triples to File
-					 */
-					try {
-						int fileCount = 1;
-						File file = new File(pathToResult
-								+ "results/newTriples_"
-								+ wikiListName.replace('/', '_').replace(':', '_')
-										.replace('"', '_') + "_" + rdfTag + ".csv");
-						if (file.exists()) {
-							myEvalData.getEvalRes().writeOutputToCsv(
-									pathToResult
-											+ "results/newTriples_"
-											+ wikiListName.replace('/', '_')
-													.replace(':', '_')
-													.replace('"', '_') + "_"
-											+ rdfTag + "_" + fileCount++ + ".csv",
-											myRdfTriples);
-						}
-
-						else {
-							myEvalData.getEvalRes().writeOutputToCsv(
-									pathToResult
-											+ "results/newTriples_"
-											+ wikiListName.replace('/', '_')
-													.replace(':', '_')
-													.replace('"', '_') + "_"
-											+ rdfTag + ".csv", myRdfTriples);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-
+				
 				System.out.println("done!");
 				columnPosition++;
 			}
+			
+			myRowList.add(myCurrRow);
+			
 		}
+		
+		/*
+		 * Pass List of Table Rows to new value evaluation
+		 */
+		
+		CopyOfWikiList.wikiListEvaluation(myRowList);
+
 	}
 
 }

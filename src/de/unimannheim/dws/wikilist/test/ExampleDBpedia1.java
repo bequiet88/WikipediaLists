@@ -55,15 +55,15 @@ public class ExampleDBpedia1
            /*
             * Query for http://en.wikipedia.org/wiki/List_of_Peers_1330-1339 		
             */
-//            		"SELECT * WHERE {"
-//                    //+"<http://dbpedia.org/resource/John_de_Warenne,_7th_Earl_of_Surrey> foaf:name ?name ."
-//            		//                 +"<http://dbpedia.org/resource/James_Baldwin> dbpprop:dateOfBirth ?dob. }";
-//                    +"<http://dbpedia.org/resource/Baron_Deincourt> dbpprop:title ?title. }";
-//            		//+"<http://dbpedia.org/resource/Matthew_McCauley_(politician)> dbpprop:name $date. }";
+            		"SELECT * WHERE {"
+                    +"<http://de.dbpedia.org/resource/München> $attr <http://de.dbpedia.org/resource/Oberbayern> . }";
+            		//                 +"<http://dbpedia.org/resource/James_Baldwin> dbpprop:dateOfBirth ?dob. }";
+                  //  +"<http://dbpedia.org/resource/Baron_Deincourt> dbpprop:title ?title. }";
+            		//+"<http://dbpedia.org/resource/Matthew_McCauley_(politician)> dbpprop:name $date. }";
             		
-            		"SELECT *"
-            		+"WHERE {"
-            		    +"<http://de.dbpedia.org/resource/Acino_Holding> dbpprop-de:mitarbeiterzahl $val . }";
+//            		"SELECT *"
+//            		+"WHERE {"
+//            		    +"<http://de.dbpedia.org/resource/Acino_Holding> dbpprop-de:mitarbeiterzahl $val . }";
             		
             /*
              * Example 1
