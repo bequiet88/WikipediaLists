@@ -274,6 +274,10 @@ public class CopyOfWikiList {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+				
 
 				/*
 				 * Calculate Totals
@@ -285,7 +289,11 @@ public class CopyOfWikiList {
 							evalRes.getEvalMatrix());
 				} catch (IOException e) {
 					e.printStackTrace();
+				}			
+				catch (Exception e) {
+					e.printStackTrace();
 				}
+				
 
 				/*
 				 * Prepare RDF Output
@@ -353,6 +361,10 @@ public class CopyOfWikiList {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					catch (Exception e) {
+						e.printStackTrace();
+					}
+					
 				}
 
 				System.out.println("done!");

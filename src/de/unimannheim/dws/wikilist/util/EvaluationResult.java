@@ -132,7 +132,7 @@ public class EvaluationResult {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public void writeOutputToCsv(String path, List<List<String>> data)
-			throws IOException {
+			throws Exception {
 
 		// generate CSVPrinter Object
 		// FileOutputStream csvBAOS = new FileOutputStream(new File(path));
@@ -144,6 +144,8 @@ public class EvaluationResult {
 		csvPrinter.print("sep=,");
 		csvPrinter.println();
 
+		
+		
 		if (data.get(0).get(0).equals("") && this != null) {
 			csvPrinter.print("Number of Wiki Table rows = "
 					+ this.getNoOfWikiTableEntries());
