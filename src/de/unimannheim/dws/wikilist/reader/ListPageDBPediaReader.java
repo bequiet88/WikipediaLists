@@ -119,7 +119,8 @@ public class ListPageDBPediaReader implements
 						this.close();
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.out.println("ERROR in query: " + queryStr);
+					//e.printStackTrace();
 					continue;
 				}
 			}
@@ -159,7 +160,8 @@ public class ListPageDBPediaReader implements
 					this.close();
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.out.println("ERROR in query: " + queryStr);
+					//e.printStackTrace();
 					continue;
 				}
 

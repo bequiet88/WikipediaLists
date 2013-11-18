@@ -1,5 +1,7 @@
 package de.unimannheim.dws.wikilist.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,7 +48,7 @@ public class ProcessTable {
 		// "List_of_Pennsylvania_state_historical_markers_in_Jefferson_County");
 		// "List_of_horror_films_of_2001");
 		// "List_of_places_in_Florida:_T-V");
-				"List_of_Copa_Libertadores_winning_managers");
+				"List_of_members_of_the_European_Parliament_for_the_United_Kingdom,_2004–2009");
 		System.out.println(page.getText());
 		System.out.println("---");
 
@@ -58,7 +60,7 @@ public class ProcessTable {
 		}
 		System.out.println(table.size());
 
-		for (String link : getColumn(table,2)) {
+		for (String link : getColumn(table,1)) {
 			System.out.println(link);
 		}
 
@@ -280,7 +282,7 @@ public class ProcessTable {
 				String substring = s.substring(s.indexOf("[[") + 2,
 						s.indexOf("]]"));
 				if (substring.contains("|"))
-					return substring.substring(0, s.indexOf("|"));
+					return substring.substring(0, substring.indexOf("|"));
 				else
 					return substring;
 
@@ -308,7 +310,15 @@ public class ProcessTable {
 	public static String wiki2dbpLink(String s) {
 		if (s.equals(""))
 			return "";
-		return "<http://dbpedia.org/resource/" + s.replaceAll(" ", "_") + ">";
+		String url = "";
+		
+		try {
+			url = URLDecoder.decode("<http://dbpedia.org/resource/" + s.replaceAll(" ", "_") + ">", "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			url = "<http://dbpedia.org/resource/" + s.replaceAll(" ", "_") + ">";
+		}
+		
+		return url;
 	}
 
 	// removes all entries that do not match the common table length

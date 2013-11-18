@@ -198,8 +198,7 @@ public class EvaluationHelper {
 							 */
 							List<String> rdfTriple = new ArrayList<String>();
 							rdfTriple.add(link);
-							rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
-									+ CopyOfWikiList.rdfTag);
+							rdfTriple.add(CopyOfWikiList.rdfPropUrl);
 							rdfTriple.add(matchingValueUri);
 							helperTriple = result.getRdfTriples();
 							helperTriple.add(rdfTriple);
@@ -271,8 +270,7 @@ public class EvaluationHelper {
 					 */
 					List<String> rdfTriple = new ArrayList<String>();
 					rdfTriple.add(link);
-					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
-							+ CopyOfWikiList.rdfTag);
+					rdfTriple.add(CopyOfWikiList.rdfPropUrl);
 					rdfTriple.add(matchingValueUri);
 					helperTriple = result.getRdfTriples();
 					helperTriple.add(rdfTriple);
@@ -297,8 +295,7 @@ public class EvaluationHelper {
 					 */
 					List<String> rdfTriple = new ArrayList<String>();
 					rdfTriple.add(link);
-					rdfTriple.add(CopyOfWikiList.rdfTagPrefix + ":"
-							+ CopyOfWikiList.rdfTag);
+					rdfTriple.add(CopyOfWikiList.rdfPropUrl);
 					rdfTriple.add(tableRow.get(CopyOfWikiList.columnPosition));
 					helperTriple = result.getRdfTriples();
 					helperTriple.add(rdfTriple);

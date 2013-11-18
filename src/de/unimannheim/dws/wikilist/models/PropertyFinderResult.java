@@ -13,6 +13,9 @@ import org.apache.commons.csv.CSVPrinter;
  * The Class PropertyFinderResult.
  */
 public class PropertyFinderResult {
+	
+	private static int noOfInvestigatedCols = 0;
+	private static int noOfFoundCols = 0;
 
 	/** The map. */
 	private HashMap<String, Double> map;
@@ -78,6 +81,22 @@ public class PropertyFinderResult {
 	 */
 	public void setMap(HashMap<String, Double> map) {
 		this.map = map;
+	}
+
+	public static int getNoOfInvestigatedCols() {
+		return noOfInvestigatedCols;
+	}
+
+	public static void setNoOfInvestigatedCols(int noOfInvestigatedCols) {
+		PropertyFinderResult.noOfInvestigatedCols = noOfInvestigatedCols;
+	}
+
+	public static int getNoOfFoundCols() {
+		return noOfFoundCols;
+	}
+
+	public static void setNoOfFoundCols(int noOfFoundCols) {
+		PropertyFinderResult.noOfFoundCols = noOfFoundCols;
 	}
 
 }

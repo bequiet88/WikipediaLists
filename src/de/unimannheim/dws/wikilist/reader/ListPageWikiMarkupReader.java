@@ -28,7 +28,7 @@ public class ListPageWikiMarkupReader implements ListPageReader<List<String>> {
 	ArrayList<String> output = null;
 	
 	/** The ssh. */
-	SSHConnection ssh = null;
+	SSHConnection ssh =  new SSHConnection();
     
     /** The db config. */
     DatabaseConfiguration dbConfig = null;
@@ -37,10 +37,9 @@ public class ListPageWikiMarkupReader implements ListPageReader<List<String>> {
 	 * @see de.unimannheim.dws.wikilist.reader.IListPageReader#openInput(de.unimannheim.dws.wikilist.reader.ReaderResource)
 	 */
 	@Override
-	public void openInput(ReaderResource resource) {
+	public void openInput(ReaderResource resource) throws Exception {
 		// TODO Auto-generated method stub
 		wikiRes = resource.getResource();
-		ssh =  new SSHConnection();
         dbConfig = new DatabaseConfiguration();
 		dbConfig.setHost("127.0.0.1:1234");
         dbConfig.setDatabase("jwpl");

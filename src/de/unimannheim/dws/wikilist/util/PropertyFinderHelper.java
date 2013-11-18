@@ -71,7 +71,7 @@ public class PropertyFinderHelper {
 			 */
 
 			XPathExpression expr = xpath
-					.compile("//binding[@name = \"attr\"]/uri/text()");
+					.compile("//binding[@name = \"property\"]/uri/text()");
 
 			List<String> uris = new ArrayList<String>();
 			NodeList nodes = (NodeList) expr.evaluate(document,
@@ -157,6 +157,7 @@ public class PropertyFinderHelper {
 					maxConf = entry.getValue();
 				}
 			}
+			PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult.getNoOfFoundCols() + 1);			
 			return maxProp;
 		}
 	}

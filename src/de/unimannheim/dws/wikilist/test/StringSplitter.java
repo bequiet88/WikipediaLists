@@ -1,12 +1,18 @@
 package de.unimannheim.dws.wikilist.test;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.LinkedList;
 
 public class StringSplitter {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws UnsupportedEncodingException {
 		// TODO Auto-generated method stub
+		
+		String url = "http://en.wikipedia.org/wiki/List_of_members_of_the_European_Parliament_for_the_United_Kingdom,_2004–2009";
+		System.out.println(URLDecoder.decode(url, "UTF-8"));
+		
 		
 		String line = "|valign=\"left\"|1994–1995";
 		

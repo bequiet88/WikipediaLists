@@ -2,6 +2,8 @@ package de.unimannheim.dws.wikilist;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +53,7 @@ public class CopyOfCopyOfWikiList {
 	public static int columnPosition = 0;
 	
 	/** The path to result. */
-	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";
+	public static String pathToResult = "C:/Users/d049650/Documents/Uni_Workspace/";//"D:/Studium/Classes_Sem3/Seminar/Codebase/";
 	
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
@@ -119,8 +121,12 @@ public class CopyOfCopyOfWikiList {
 			 * General settings for this run
 			 */
 
-			wikiListURL = list.get(1);
-			wikiListName = wikiListURL.replace("http://en.wikipedia.org/wiki/",
+			try {
+				wikiListURL = URLDecoder.decode(list.get(1), "UTF-8");
+			} catch (UnsupportedEncodingException e2) {
+				wikiListURL = list.get(1);
+			}
+			wikiListName = list.get(1).replace("http://en.wikipedia.org/wiki/",
 					"");
 
 			System.out.println("Start processing of table " + wikiListName);
@@ -133,14 +139,16 @@ public class CopyOfCopyOfWikiList {
 			ReaderResource myTestRes = new ReaderResource(wikiListName);
 
 			ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
-			myWikiReader.openInput(myTestRes);
+			
 
 			TestDataSet myTestData = new TestDataSet();
 
 			try {
+				myWikiReader.openInput(myTestRes);
 				myTestData.setWikiMarkUpList(myWikiReader.readInput());
 			} catch (Exception e1) {
 				e1.printStackTrace();
+				//myWikiReader.close();
 				continue;
 			}
 
@@ -155,8 +163,9 @@ public class CopyOfCopyOfWikiList {
 						myTestData.toString());
 			} catch (Exception e1) {
 				e1.printStackTrace();
+				//myWikiReader.close();
 			}
-			myWikiReader.close();
+			//myWikiReader.close();
 
 			System.out.println("done!");
 
@@ -222,8 +231,10 @@ public class CopyOfCopyOfWikiList {
 			 */
 			columnPosition = 0;
 
-			for (int i = 0; i < myTestData.getFirstTable().size(); i++) {
+			for (int i = 0; i < myTestData.getFirstTable().get(0).size(); i++) {
 
+				PropertyFinderResult.setNoOfInvestigatedCols(PropertyFinderResult.getNoOfInvestigatedCols() + 1);			
+				
 				/*
 				 * If column is instance column, continue
 				 */
@@ -246,6 +257,7 @@ public class CopyOfCopyOfWikiList {
 				/*
 				 * Iterate over column
 				 */
+				int colCounter = 0;
 				for (String string2 : colValues) {
 					String dbpValue = ProcessTable.wiki2dbpLink(ProcessTable
 							.getLink(string2));
@@ -255,7 +267,7 @@ public class CopyOfCopyOfWikiList {
 					 */
 					if (dbpValue != "") {
 						Triple<String, String, String> myTriple = new Triple<String, String, String>();
-						myTriple.setFirst(dbpediaResMap.get("row" + i));
+						myTriple.setFirst(dbpediaResMap.get("row" + colCounter));
 						myTriple.setSecond("$property");
 						myTriple.setThird(dbpValue);
 						myTriples.add(myTriple);
@@ -267,6 +279,8 @@ public class CopyOfCopyOfWikiList {
 					else {
 
 					}
+					
+					colCounter++;
 
 				}
 
@@ -297,7 +311,7 @@ public class CopyOfCopyOfWikiList {
 				/*
 				 * Write Resulting confidences to file
 				 */
-				if (myPropRes != null) {
+				if (myPropRes.getMap().size() > 0) {
 
 					try {
 						int fileCount = 1;
@@ -313,7 +327,7 @@ public class CopyOfCopyOfWikiList {
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
 													.replace('"', '_')
-											+ "__columne_" + i + "_"
+											+ "_column_" + i + "_"
 											+ fileCount++ + ".csv",
 											myPropRes.getMap());
 						}
@@ -325,7 +339,7 @@ public class CopyOfCopyOfWikiList {
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
 													.replace('"', '_')
-											+ "__columne_" + i + ".csv",
+											+ "_column_" + i + ".csv",
 											myPropRes.getMap());
 						}
 					} catch (IOException e) {
@@ -337,6 +351,7 @@ public class CopyOfCopyOfWikiList {
 				columnPosition++;
 			}
 
+			System.out.println(dbpediaAttributes.toString());			
 			myRowList.add(myCurrRow);
 
 		}
@@ -344,8 +359,9 @@ public class CopyOfCopyOfWikiList {
 		/*
 		 * Pass List of Table Rows to new value evaluation
 		 */
-
-		CopyOfWikiList.wikiListEvaluation(myRowList);
+		System.out.println("No of columns look at: " + PropertyFinderResult.getNoOfInvestigatedCols());
+		System.out.println("No of properties found: " + PropertyFinderResult.getNoOfFoundCols());
+		//CopyOfWikiList.wikiListEvaluation(myRowList);
 
 	}
 

@@ -26,38 +26,42 @@ public class CopyOfWikiList {
 	 */
 	/** The rdf tag. */
 	public static String rdfTag = "";
-	
+
 	/** The rdf tag prefix. */
 	public static String rdfTagPrefix = "";
 	
+	/** The rdf property url. */
+	public static String rdfPropUrl = "";
+
 	/** The wiki list url. */
 	public static String wikiListURL = "";
-	
+
 	/** The wiki list name. */
 	public static String wikiListName = "";
-	
+
 	/** The regex instances. */
 	public static String regexInstances = "";
-	
+
 	/** The column instance. */
 	public static int columnInstance = -1;
-	
+
 	/** The capture group. */
 	public static String captureGroup = "";
-	
+
 	/** The column position. */
 	public static int columnPosition = 0;
-	
+
 	/** The path to result. */
 	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";
-	
+
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
 
 	/**
 	 * The main method.
-	 *
-	 * @param args the arguments
+	 * 
+	 * @param args
+	 *            the arguments
 	 */
 	public static void main(String[] args) {
 
@@ -123,8 +127,9 @@ public class CopyOfWikiList {
 
 	/**
 	 * Wiki list evaluation.
-	 *
-	 * @param myListsList the my lists list
+	 * 
+	 * @param myListsList
+	 *            the my lists list
 	 */
 	public static void wikiListEvaluation(List<TableRow> myListsList) {
 
@@ -156,14 +161,15 @@ public class CopyOfWikiList {
 			ReaderResource myTestRes = new ReaderResource(wikiListName);
 
 			ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
-			myWikiReader.openInput(myTestRes);
 
 			TestDataSet myTestData = new TestDataSet();
 
 			try {
+				myWikiReader.openInput(myTestRes);
 				myTestData.setWikiMarkUpList(myWikiReader.readInput());
 			} catch (Exception e1) {
 				e1.printStackTrace();
+				// myWikiReader.close();
 				continue;
 			}
 
@@ -178,8 +184,9 @@ public class CopyOfWikiList {
 						myTestData.toString());
 			} catch (Exception e1) {
 				e1.printStackTrace();
+				// myWikiReader.close();
 			}
-			myWikiReader.close();
+			// myWikiReader.close();
 
 			System.out.println("done!");
 
@@ -242,16 +249,73 @@ public class CopyOfWikiList {
 				 * If column is instance column, continue
 				 */
 				if (columnPosition == columnInstance
-						|| string.equals("Column of Entity") || string.equals("error")) {
+						|| string.equals("Column of Entity")
+						|| string.equals("error")) {
 					columnPosition++;
 					continue;
 				}
 
 				System.out.println("Start processing of attribute " + string);
 
-				String[] dbpediaAttribute = string.split(":");
-				rdfTag = dbpediaAttribute[1];
-				rdfTagPrefix = dbpediaAttribute[0];
+				if (string.startsWith("<http")) {
+
+					rdfPropUrl = string;
+					
+					if (string.contains("http://xmlns.com/foaf/0.1/")) {
+						String[] dbpediaAttribute = string.split("/");
+						rdfTag = dbpediaAttribute[5];
+						rdfTagPrefix = dbpediaAttribute[3];
+					} else if (string.contains("http://purl.org/dc/elements/1.1/")) {
+						String[] dbpediaAttribute = string.split("/");
+						rdfTag = dbpediaAttribute[6];
+						rdfTagPrefix = dbpediaAttribute[3];
+					} else if (string.contains("http://dbpedia.org/resource/")) {
+						String[] dbpediaAttribute = string.split("/");
+						rdfTag = dbpediaAttribute[4];
+						rdfTagPrefix = "";
+					} else if (string.contains("http://dbpedia.org/property/")) {
+						String[] dbpediaAttribute = string.split("/");
+						rdfTag = dbpediaAttribute[4];
+						rdfTagPrefix = "dbpprop";
+					} else if (string.contains("http://dbpedia.org/ontology/")) {
+						String[] dbpediaAttribute = string.split("/");
+						rdfTag = dbpediaAttribute[4];
+						rdfTagPrefix = "dbpedia-owl";
+					} else if (string.contains("http://dbpedia.org/")) {
+						String[] dbpediaAttribute = string.split("/");
+						rdfTag = dbpediaAttribute[3];
+						rdfTagPrefix = "dbpedia";
+					}
+				} else {
+					String[] dbpediaAttribute = string.split(":");
+					rdfTag = dbpediaAttribute[1];
+					rdfTagPrefix = dbpediaAttribute[0];
+					
+					if(rdfTagPrefix.equals("foaf")) {
+						rdfPropUrl = "<http://xmlns.com/foaf/0.1/"+rdfTag+">";
+					}
+					else if (rdfTagPrefix.equals("dc")) {
+						rdfPropUrl = "<http://purl.org/dc/elements/1.1/"
+								+ rdfTag + ">";
+					}
+					else if (rdfTagPrefix.equals("")) {
+						rdfPropUrl = "<http://dbpedia.org/resource/"
+								+ rdfTag + ">";
+					}
+					else if (rdfTagPrefix.equals("dbpprop")) {
+						rdfPropUrl = "<http://dbpedia.org/property/"
+								+ rdfTag + ">";
+					}
+					else if (rdfTagPrefix.equals("dbpedia-owl") || rdfTagPrefix.equals("owl")) {
+						rdfPropUrl = "<http://dbpedia.org/ontology/"
+								+ rdfTag + ">";
+					}
+					else if (rdfTagPrefix.equals("dbpedia")) {
+						rdfPropUrl = "<http://dbpedia.org/"
+								+ rdfTag + ">";
+					}
+
+				}
 
 				/****************************************************************
 				 * Obtain Evaluation Data Set with JWPL and DBPedia Values
@@ -320,11 +384,9 @@ public class CopyOfWikiList {
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 
 				/*
 				 * Calculate Totals
@@ -336,11 +398,9 @@ public class CopyOfWikiList {
 							evalRes.getEvalMatrix());
 				} catch (IOException e) {
 					e.printStackTrace();
-				}			
-				catch (Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 
 				/*
 				 * Prepare RDF Output
@@ -408,11 +468,10 @@ public class CopyOfWikiList {
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					
+
 				}
 
 				System.out.println("done!");

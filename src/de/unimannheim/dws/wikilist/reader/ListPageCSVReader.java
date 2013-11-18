@@ -3,9 +3,10 @@ package de.unimannheim.dws.wikilist.reader;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +20,7 @@ import org.apache.commons.csv.CSVRecord;
 public class ListPageCSVReader implements ListPageReader<List<List<String>>> {
 
 	/** The reader. */
-	private BufferedReader reader = null;
+	private InputStreamReader reader = null;
 
 	/** The writer. */
 	private BufferedWriter writer = null;
@@ -34,8 +35,8 @@ public class ListPageCSVReader implements ListPageReader<List<List<String>>> {
 	@Override
 	public void openInput(ReaderResource resource) throws Exception {
 
-		reader = new BufferedReader(new FileReader(new File(
-				resource.getResource())));
+		reader = new InputStreamReader(new FileInputStream(new File(
+				resource.getResource())), "UTF-8");
 		;
 
 	}
