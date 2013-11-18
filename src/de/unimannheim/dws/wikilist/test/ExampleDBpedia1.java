@@ -56,8 +56,8 @@ public class ExampleDBpedia1
             * Query for http://en.wikipedia.org/wiki/List_of_Peers_1330-1339 		
             */
             		"SELECT * WHERE {"
-                    +"<http://de.dbpedia.org/resource/München> $attr <http://de.dbpedia.org/resource/Oberbayern> . }";
-            		//                 +"<http://dbpedia.org/resource/James_Baldwin> dbpprop:dateOfBirth ?dob. }";
+                   // +"<http://de.dbpedia.org/resource/München> $attr <http://de.dbpedia.org/resource/Oberbayern> . }";
+            		+"<http://dbpedia.org/resource/James_Baldwin> $prop $val . }";
                   //  +"<http://dbpedia.org/resource/Baron_Deincourt> dbpprop:title ?title. }";
             		//+"<http://dbpedia.org/resource/Matthew_McCauley_(politician)> dbpprop:name $date. }";
             		
@@ -106,7 +106,7 @@ public class ExampleDBpedia1
             Query query = QueryFactory.create(queryStr);
 
             // Remote execution.
-            QueryExecution qexec = QueryExecutionFactory.sparqlService("http://de.dbpedia.org/sparql", query);
+            QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
             // Set the DBpedia specific timeout.
             ((QueryEngineHTTP)qexec).addParam("timeout", "10000") ;
 

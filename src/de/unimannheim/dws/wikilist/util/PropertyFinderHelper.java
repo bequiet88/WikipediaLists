@@ -20,7 +20,6 @@ import org.xml.sax.InputSource;
 import de.unimannheim.dws.wikilist.models.PropertyFinderResult;
 import de.unimannheim.dws.wikilist.models.Triple;
 
-
 /**
  * The Class PropertyFinderHelper.
  */
@@ -28,10 +27,12 @@ public class PropertyFinderHelper {
 
 	/**
 	 * Find uri property.
-	 *
-	 * @param dbpValues the dbp values
+	 * 
+	 * @param dbpValues
+	 *            the dbp values
 	 * @return the property finder result
-	 * @throws Exception the exception
+	 * @throws Exception
+	 *             the exception
 	 */
 	public PropertyFinderResult findUriProperty(
 			HashMap<String, String> dbpValues) throws Exception {
@@ -138,9 +139,154 @@ public class PropertyFinderHelper {
 	}
 
 	/**
+	 * Find literal property.
+	 * 
+	 * @param dbpValues
+	 *            the dbp values
+	 * @return the property finder result
+	 * @throws Exception
+	 *             the exception
+	 */
+	public PropertyFinderResult findLiteralProperty(
+			HashMap<String, String> dbpCache, HashMap<String, String> literals)
+			throws Exception {
+
+		/*
+		 * Initiate Property Finder Result.
+		 */
+		PropertyFinderResult result = new PropertyFinderResult();
+		HashMap<String, Double> resultMap = new HashMap<String, Double>();
+		result.setMap(resultMap);
+
+		/*
+		 * Iterate over Literal HashMap
+		 */
+		for (String key : literals.keySet()) {
+
+			/*
+			 * Read XML DBPedia result from Cache
+			 */
+			String dbpResult = dbpCache.get(key);
+
+			if (dbpResult != null) {
+
+				/*
+				 * Initiate XML Parser to retrieve result pairs
+				 */
+				InputSource source = new InputSource(
+						new StringReader(dbpResult));
+
+				DocumentBuilderFactory dbf = DocumentBuilderFactory
+						.newInstance();
+				DocumentBuilder db;
+
+				db = dbf.newDocumentBuilder();
+				Document document = db.parse(source);
+
+				XPathFactory xpathFactory = XPathFactory.newInstance();
+				XPath xpath = xpathFactory.newXPath();
+
+				XPathExpression expr = xpath.compile("//results");// binding[@name
+																	// =
+																	// \"property\"]/uri/text()");
+
+				List<String> resultPairs = new ArrayList<String>();
+				NodeList nodes = (NodeList) expr.evaluate(document,
+						XPathConstants.NODESET);
+				for (int i = 0; i < nodes.getLength(); i++)
+					resultPairs.add(nodes.item(i).getNodeValue());
+
+				String dbpProp = null;
+				String dbpVal = null;
+
+				if (resultPairs.size() > 0) {
+
+					for (String resultPair : resultPairs) {
+
+						dbpProp = null;
+						dbpVal = null;
+						/*
+						 * Read DBPedia Property and corresponding value
+						 */
+						InputSource sourcePair = new InputSource(
+								new StringReader(resultPair));
+
+						DocumentBuilderFactory dbfPair = DocumentBuilderFactory
+								.newInstance();
+						DocumentBuilder dbPair;
+
+						dbPair = dbfPair.newDocumentBuilder();
+						Document documentPair = dbPair.parse(sourcePair);
+
+						XPathFactory xpathFactoryPair = XPathFactory.newInstance();
+						XPath xpathPair = xpathFactoryPair.newXPath();
+						
+						XPathExpression exprPair = xpathPair
+								.compile("//binding[@name = \"prop\"]/uri/text()");
+
+						NodeList nodesPair = (NodeList) exprPair.evaluate(documentPair,
+								XPathConstants.NODESET);
+						if (nodesPair.getLength() == 1) {
+							dbpProp = nodesPair.item(0).getNodeValue();
+						}
+
+						exprPair = xpath
+								.compile("//binding[@name = \"value\"]/literal/text()");
+
+						nodesPair = (NodeList) exprPair.evaluate(documentPair,
+								XPathConstants.NODESET);
+						if (nodesPair.getLength() == 1) {
+							dbpVal = nodesPair.item(0).getNodeValue();
+						}
+
+						if (dbpProp != null && dbpVal != null) {
+
+							/*
+							 * calculate jaccard similarity for pair's value and
+							 * literal's value
+							 */
+							double sim = JaccardSimilarity.jaccardSimilarity(
+									ProcessTable.cleanTableCell(literals.get(key)), dbpVal);
+							if (sim > 0.5) {
+
+								/*
+								 * sum up similarities
+								 */
+								if (resultMap.containsKey("<" + dbpProp + ">")) {
+									double helperSim = resultMap.get("<"
+											+ dbpProp + ">")
+											+ sim;
+									resultMap.put("<" + dbpProp + ">",
+											helperSim);
+								} else {
+									resultMap.put("<" + dbpProp + ">", sim);
+								}
+							}
+						}
+					}
+				}
+			}			
+		}	
+		
+
+		/*
+		 * Calculate Confidence of each property
+		 * Iterate over resultMap and divide by literals.size()
+		 */
+		for (String prop : resultMap.keySet()) {
+			resultMap.put(prop, (double) resultMap.get(prop)
+					/ literals.size());
+		}
+		
+		return result;
+
+	}
+
+	/**
 	 * Return max confidence.
-	 *
-	 * @param res the res
+	 * 
+	 * @param res
+	 *            the res
 	 * @return the string
 	 */
 	public String returnMaxConfidence(PropertyFinderResult res) {
@@ -157,7 +303,8 @@ public class PropertyFinderHelper {
 					maxConf = entry.getValue();
 				}
 			}
-			PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult.getNoOfFoundCols() + 1);			
+			PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
+					.getNoOfFoundCols() + 1);
 			return maxProp;
 		}
 	}

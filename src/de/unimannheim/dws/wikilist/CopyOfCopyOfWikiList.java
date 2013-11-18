@@ -30,38 +30,39 @@ public class CopyOfCopyOfWikiList {
 	 */
 	/** The rdf tag. */
 	public static String rdfTag = "";
-	
+
 	/** The rdf tag prefix. */
 	public static String rdfTagPrefix = "";
-	
+
 	/** The wiki list url. */
 	public static String wikiListURL = "";
-	
+
 	/** The wiki list name. */
 	public static String wikiListName = "";
-	
+
 	/** The regex instances. */
 	public static String regexInstances = "";
-	
+
 	/** The column instance. */
 	public static int columnInstance = -1;
-	
+
 	/** The capture group. */
 	public static String captureGroup = "";
-	
+
 	/** The column position. */
 	public static int columnPosition = 0;
-	
+
 	/** The path to result. */
-	public static String pathToResult = "C:/Users/d049650/Documents/Uni_Workspace/";//"D:/Studium/Classes_Sem3/Seminar/Codebase/";
-	
+	public static String pathToResult = "C:/Users/d049650/Documents/Uni_Workspace/";// "D:/Studium/Classes_Sem3/Seminar/Codebase/";
+
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
 
 	/**
 	 * The main method.
-	 *
-	 * @param args the arguments
+	 * 
+	 * @param args
+	 *            the arguments
 	 */
 	public static void main(String[] args) {
 
@@ -109,6 +110,8 @@ public class CopyOfCopyOfWikiList {
 		//
 		// System.out.println("done!");
 
+		boolean isFirstColumn;
+
 		for (List<String> list : myListsList) {
 
 			if (list.get(0).contains("X"))
@@ -139,7 +142,6 @@ public class CopyOfCopyOfWikiList {
 			ReaderResource myTestRes = new ReaderResource(wikiListName);
 
 			ListPageWikiMarkupReader myWikiReader = new ListPageWikiMarkupReader();
-			
 
 			TestDataSet myTestData = new TestDataSet();
 
@@ -148,7 +150,7 @@ public class CopyOfCopyOfWikiList {
 				myTestData.setWikiMarkUpList(myWikiReader.readInput());
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				//myWikiReader.close();
+				// myWikiReader.close();
 				continue;
 			}
 
@@ -163,9 +165,9 @@ public class CopyOfCopyOfWikiList {
 						myTestData.toString());
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				//myWikiReader.close();
+				// myWikiReader.close();
 			}
-			//myWikiReader.close();
+			// myWikiReader.close();
 
 			System.out.println("done!");
 
@@ -231,10 +233,23 @@ public class CopyOfCopyOfWikiList {
 			 */
 			columnPosition = 0;
 
+			/*
+			 * Initialize cache for literal query triples
+			 */
+			isFirstColumn = true;
+			List<Triple<String, String, String>> myLiteralTriplesCache = new ArrayList<Triple<String, String, String>>();
+			HashMap<String, String> myLiteralCache = new HashMap<String, String>();
+
+			/*
+			 * Loop through all columns of List
+			 */
+
 			for (int i = 0; i < myTestData.getFirstTable().get(0).size(); i++) {
 
-				PropertyFinderResult.setNoOfInvestigatedCols(PropertyFinderResult.getNoOfInvestigatedCols() + 1);			
-				
+				PropertyFinderResult
+						.setNoOfInvestigatedCols(PropertyFinderResult
+								.getNoOfInvestigatedCols() + 1);
+
 				/*
 				 * If column is instance column, continue
 				 */
@@ -250,56 +265,101 @@ public class CopyOfCopyOfWikiList {
 				List<String> colValues = ProcessTable.getPlainColumn(
 						myTestData.getFirstTable(), i);
 				/*
-				 * Initialize Triple List for this column
+				 * Initialize Triple Lists for this column
 				 */
-				List<Triple<String, String, String>> myTriples = new ArrayList<Triple<String, String, String>>();
+				List<Triple<String, String, String>> myUriTriples = new ArrayList<Triple<String, String, String>>();
+				HashMap<String, String> myLiteralMap = new HashMap<String, String>();
+				//List<Triple<String, String, String>> myLiteralTriples = new ArrayList<Triple<String, String, String>>();
 
 				/*
-				 * Iterate over column
+				 * Iterate over rows of column
 				 */
-				int colCounter = 0;
-				for (String string2 : colValues) {
+				int rowCounter = 0;
+
+				for (String row : colValues) {
 					String dbpValue = ProcessTable.wiki2dbpLink(ProcessTable
-							.getLink(string2));
+							.getLink(row));
 
 					/*
-					 * Generate triple
+					 * Generate Uri triples
 					 */
 					if (dbpValue != "") {
 						Triple<String, String, String> myTriple = new Triple<String, String, String>();
-						myTriple.setFirst(dbpediaResMap.get("row" + colCounter));
+						myTriple.setFirst(dbpediaResMap.get("row" + rowCounter));
 						myTriple.setSecond("$property");
 						myTriple.setThird(dbpValue);
-						myTriples.add(myTriple);
+						myUriTriples.add(myTriple);
+					}
+					/*
+					 * Generate literal triples
+					 */
+					else {
+						myLiteralMap.put(dbpediaResMap.get("row" + rowCounter), row);
 					}
 
 					/*
-					 * TODO: Process literal values of JWPL table
+					 * Build up complete list of literal triples for the sake of
+					 * caching
 					 */
-					else {
-
+					if (isFirstColumn == true) {
+						Triple<String, String, String> myTriple = new Triple<String, String, String>();
+						myTriple.setFirst(dbpediaResMap.get("row" + rowCounter));
+						myTriple.setSecond("$prop");
+						myTriple.setThird("$value");
+						myLiteralTriplesCache.add(myTriple);
 					}
-					
-					colCounter++;
-
+					rowCounter++;
 				}
+
+				isFirstColumn = false;
 
 				/*
 				 * Query DBPedia to find suitable Property
 				 */
-				ReaderResource myDbpRes = new ReaderResource(myTriples);
-				ListPageDBPediaReader myDbpReader = new ListPageDBPediaReader();
-				myDbpReader.openInput(myDbpRes);
 
 				PropertyFinderHelper myPropFinder = new PropertyFinderHelper();
-
 				PropertyFinderResult myPropRes = null;
+				ReaderResource myDbpRes = null;
+				ListPageDBPediaReader myDbpReader = new ListPageDBPediaReader();
 
 				try {
-					myPropRes = myPropFinder.findUriProperty(myDbpReader
-							.readInput());
-					dbpediaAttributes.add(myPropFinder
-							.returnMaxConfidence(myPropRes));
+					if (myUriTriples.size() > 0) {
+
+						myDbpRes = new ReaderResource(myUriTriples);
+						myDbpReader.openInput(myDbpRes);
+
+						myPropRes = myPropFinder.findUriProperty(myDbpReader
+								.readInput());
+						if (!myPropFinder.returnMaxConfidence(myPropRes)
+								.equals("error")) {
+							dbpediaAttributes.add(myPropFinder
+									.returnMaxConfidence(myPropRes));
+						} else if (myLiteralMap.size() > 0) {
+							if (myLiteralCache.size() == 0) {
+								myDbpRes = new ReaderResource(
+										myLiteralTriplesCache);
+								myDbpReader = new ListPageDBPediaReader();
+								myDbpReader.openInput(myDbpRes);
+								myLiteralCache = myDbpReader.readInput();
+							}
+							myPropRes = myPropFinder
+									.findLiteralProperty(myLiteralCache, myLiteralMap);
+							dbpediaAttributes.add(myPropFinder
+									.returnMaxConfidence(myPropRes));
+						}
+
+					} else if (myLiteralMap.size() > 0) {
+						if (myLiteralCache.size() == 0) {
+							myDbpRes = new ReaderResource(myLiteralTriplesCache);
+							myDbpReader = new ListPageDBPediaReader();
+							myDbpReader.openInput(myDbpRes);
+							myLiteralCache = myDbpReader.readInput();
+						}
+						myPropRes = myPropFinder
+								.findLiteralProperty(myLiteralCache, myLiteralMap);
+						dbpediaAttributes.add(myPropFinder
+								.returnMaxConfidence(myPropRes));
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 					dbpediaAttributes.add("error");
@@ -329,7 +389,7 @@ public class CopyOfCopyOfWikiList {
 													.replace('"', '_')
 											+ "_column_" + i + "_"
 											+ fileCount++ + ".csv",
-											myPropRes.getMap());
+									myPropRes.getMap());
 						}
 
 						else {
@@ -340,7 +400,7 @@ public class CopyOfCopyOfWikiList {
 													.replace(':', '_')
 													.replace('"', '_')
 											+ "_column_" + i + ".csv",
-											myPropRes.getMap());
+									myPropRes.getMap());
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -351,7 +411,7 @@ public class CopyOfCopyOfWikiList {
 				columnPosition++;
 			}
 
-			System.out.println(dbpediaAttributes.toString());			
+			System.out.println(dbpediaAttributes.toString());
 			myRowList.add(myCurrRow);
 
 		}
@@ -359,9 +419,11 @@ public class CopyOfCopyOfWikiList {
 		/*
 		 * Pass List of Table Rows to new value evaluation
 		 */
-		System.out.println("No of columns look at: " + PropertyFinderResult.getNoOfInvestigatedCols());
-		System.out.println("No of properties found: " + PropertyFinderResult.getNoOfFoundCols());
-		//CopyOfWikiList.wikiListEvaluation(myRowList);
+		System.out.println("No of columns look at: "
+				+ PropertyFinderResult.getNoOfInvestigatedCols());
+		System.out.println("No of properties found: "
+				+ PropertyFinderResult.getNoOfFoundCols());
+		// CopyOfWikiList.wikiListEvaluation(myRowList);
 
 	}
 

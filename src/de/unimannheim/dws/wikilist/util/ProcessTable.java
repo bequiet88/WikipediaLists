@@ -320,7 +320,33 @@ public class ProcessTable {
 		
 		return url;
 	}
+	
+	
+	/**
+	 * Clean table cell.
+	 * 
+	 * @param s
+	 *            the string
+	 * @return the cleaned string.
+	 */
+	public static String cleanTableCell(String s) {
 
+		if(s.startsWith("{{Sort") || s.startsWith("{{sort")) {
+			s = s.substring(nthIndexOf(s, "|", 1) + 1);
+		}
+		if(s.startsWith("{{colorbox")) {
+			s = s.substring(nthIndexOf(s, "|", 1) + 1);
+		}
+		if (s.contains("align=")) {
+			s = s.substring(nthIndexOf(s, "|", 1) + 1);
+		}
+		if(s.contains("<ref>")) {
+			s = s.substring(0, nthIndexOf(s, "<ref>", 1));
+		}
+		return s;
+	}
+	
+	
 	// removes all entries that do not match the common table length
 	/**
 	 * Clean table.

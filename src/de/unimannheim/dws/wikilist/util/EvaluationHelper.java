@@ -125,9 +125,9 @@ public class EvaluationHelper {
 						 * Check DBPedia Uri and Wiki Literal
 						 */
 						else if (!matchFound
-								&& JaccardSimilarity.jaccardSimilarity(tableRow
-										.get(CopyOfWikiList.columnPosition),
-										matchingValueLiteral) > 0.7) {
+								&& JaccardSimilarity.jaccardSimilarity(ProcessTable.cleanTableCell(tableRow
+										.get(CopyOfWikiList.columnPosition)),
+										matchingValueLiteral) > 0.6) {
 							result.setNoOfDBPUriWikiLiteral(result.getNoOfDBPUriWikiLiteral() + 1);
 							matchFound = true;
 							break;
@@ -187,9 +187,9 @@ public class EvaluationHelper {
 
 						if (!matchFound
 								&& !matchingValueUri.equals("")
-								&& JaccardSimilarity.jaccardSimilarity(tableRow
-										.get(CopyOfWikiList.columnPosition),
-										dbpLiteral) > 0.45) {
+								&& JaccardSimilarity.jaccardSimilarity(ProcessTable.cleanTableCell(tableRow
+										.get(CopyOfWikiList.columnPosition)),
+										dbpLiteral) > 0.4) {
 							result.setNoOfDBPLiteralWikiUri(result.getNoOfDBPLiteralWikiUri() + 1);
 							matchFound = true;
 
@@ -210,9 +210,9 @@ public class EvaluationHelper {
 						 * Check DBPedia Literal and Wiki Literal
 						 */
 						else if (!matchFound
-								&& JaccardSimilarity.jaccardSimilarity(tableRow
-										.get(CopyOfWikiList.columnPosition),
-										dbpLiteral) > 0.8) {
+								&& JaccardSimilarity.jaccardSimilarity(ProcessTable.cleanTableCell(tableRow
+										.get(CopyOfWikiList.columnPosition)),
+										dbpLiteral) > 0.7) {
 							result.setNoOfDBPLiteralWikiLiteral(result.getNoOfDBPLiteralWikiLiteral() + 1);
 							matchFound = true;
 							break;
