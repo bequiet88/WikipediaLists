@@ -334,6 +334,8 @@ public class CopyOfCopyOfWikiList {
 								.equals("error")) {
 							dbpediaAttributes.add(myPropFinder
 									.returnMaxConfidence(myPropRes));
+							PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
+									.getNoOfFoundCols() + 1);
 						} else if (myLiteralMap.size() > 0) {
 							if (myLiteralCache.size() == 0) {
 								myDbpRes = new ReaderResource(
@@ -346,9 +348,11 @@ public class CopyOfCopyOfWikiList {
 									.findLiteralProperty(myLiteralCache, myLiteralMap);
 							dbpediaAttributes.add(myPropFinder
 									.returnMaxConfidence(myPropRes));
+							PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
+									.getNoOfFoundCols() + 1);
 						}
 
-					} else if (myLiteralMap.size() > 0) {
+					} else if (myLiteralMap.size() > 0 && myUriTriples.size() == 0) {
 						if (myLiteralCache.size() == 0) {
 							myDbpRes = new ReaderResource(myLiteralTriplesCache);
 							myDbpReader = new ListPageDBPediaReader();
@@ -359,11 +363,17 @@ public class CopyOfCopyOfWikiList {
 								.findLiteralProperty(myLiteralCache, myLiteralMap);
 						dbpediaAttributes.add(myPropFinder
 								.returnMaxConfidence(myPropRes));
+						PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
+								.getNoOfFoundCols() + 1);
+					}
+					else {
+						dbpediaAttributes.add("error");								
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 					dbpediaAttributes.add("error");
 					columnPosition++;
+					myDbpReader.close();
 					continue;
 				}
 				myDbpReader.close();
@@ -407,7 +417,7 @@ public class CopyOfCopyOfWikiList {
 					}
 				}
 
-				System.out.println("done!");
+				System.out.println("done with column " + i + "!");
 				columnPosition++;
 			}
 

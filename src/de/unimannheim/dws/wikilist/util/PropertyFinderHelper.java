@@ -166,8 +166,8 @@ public class PropertyFinderHelper {
 			/*
 			 * Read XML DBPedia result from Cache
 			 */
-			String dbpResult = dbpCache.get(key);
-
+			String dbpResult = dbpCache.get(key + "::$prop::$value");
+			
 			if (dbpResult != null) {
 
 				/*
@@ -186,7 +186,7 @@ public class PropertyFinderHelper {
 				XPathFactory xpathFactory = XPathFactory.newInstance();
 				XPath xpath = xpathFactory.newXPath();
 
-				XPathExpression expr = xpath.compile("//results");// binding[@name
+				XPathExpression expr = xpath.compile("//result");// binding[@name
 																	// =
 																	// \"property\"]/uri/text()");
 
@@ -303,8 +303,6 @@ public class PropertyFinderHelper {
 					maxConf = entry.getValue();
 				}
 			}
-			PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
-					.getNoOfFoundCols() + 1);
 			return maxProp;
 		}
 	}

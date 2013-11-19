@@ -23,7 +23,7 @@ public class XMLTester {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			String xml = "<?xml version=\"1.0\"?><sparql xmlns=\"http://www.w3.org/2005/sparql-results#\"><head><variable name=\"title\"/></head><results><result><binding name=\"title\"><uri>http://dbpedia.org/resource/Duke_of_Aquitaine</uri></binding></result><result><binding name=\"title\"><uri>http://dbpedia.org/resource/Duke_of_Cornwall</uri></binding></result><result><binding name=\"title\"><uri>http://dbpedia.org/resource/Prince_of_Wales</uri></binding></result><result><binding name=\"title\"><uri>http://dbpedia.org/resource/List_of_heirs_to_the_English_throne</uri></binding></result><result><binding name=\"title\"><literal xml:lang=\"en\">as heir apparent</literal></binding></result></results></sparql>";
+			String xml = "<?xml version=\"1.0\"?>\n<sparql xmlns=\"http://www.w3.org/2005/sparql-results#\">\n<head>\n<variable name=\"prop\"/>\n<variable name=\"value\"/>\n</head>\n<results>\n</results>\n</sparql>";
 
 			InputSource source = new InputSource(new StringReader(xml));
 
@@ -39,7 +39,7 @@ public class XMLTester {
 			
             //evaluate expression result on XML document
 			 XPathExpression expr =
-		                xpath.compile("//binding[@name = \"title\"]/uri/text()");
+		                xpath.compile("//results");////binding[@name = \"title\"]/uri/text()");
 			 
 			 //"/Employees/Employee[gender='Female']/name/text()");
 			List<String> value = new ArrayList<String>(); 
