@@ -53,7 +53,7 @@ public class CopyOfCopyOfWikiList {
 	public static int columnPosition = 0;
 
 	/** The path to result. */
-	public static String pathToResult = "C:/Users/d049650/Documents/Uni_Workspace/";// "D:/Studium/Classes_Sem3/Seminar/Codebase/";
+	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";//"C:/Users/d049650/Documents/Uni_Workspace/";
 
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();

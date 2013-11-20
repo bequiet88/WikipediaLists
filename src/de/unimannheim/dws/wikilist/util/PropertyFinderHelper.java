@@ -193,19 +193,38 @@ public class PropertyFinderHelper {
 				List<String> resultPairs = new ArrayList<String>();
 				NodeList nodes = (NodeList) expr.evaluate(document,
 						XPathConstants.NODESET);
-				for (int i = 0; i < nodes.getLength(); i++)
+				for (int i = 0; i < nodes.getLength(); i++) 
+					
+//					String dbpProp = null;
+//					String dbpVal = null;
+//
+//					NodeList childNodes = nodes.item(i).getChildNodes();
+//					
+//					for (int j = 0; j < childNodes.getLength(); j++) {
+//						
+//						if(childNodes.item(j).getNodeName().equals("binding")) {
+//							
+//							childNodes.item(j).getAttributes()
+//							
+//							
+//						}
+//						
+//						
+//						
+//					}
+//					
+//					
+//					
+//				}
 					resultPairs.add(nodes.item(i).getNodeValue());
 
-				String dbpProp = null;
-				String dbpVal = null;
 
 				if (resultPairs.size() > 0) {
 
 					for (String resultPair : resultPairs) {
 
-						dbpProp = null;
-						dbpVal = null;
-						/*
+						String dbpProp = null;
+						String dbpVal = null;						/*
 						 * Read DBPedia Property and corresponding value
 						 */
 						InputSource sourcePair = new InputSource(
