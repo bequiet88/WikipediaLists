@@ -14,6 +14,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -167,7 +169,7 @@ public class PropertyFinderHelper {
 			 * Read XML DBPedia result from Cache
 			 */
 			String dbpResult = dbpCache.get(key + "::$prop::$value");
-			
+
 			if (dbpResult != null) {
 
 				/*
@@ -189,95 +191,94 @@ public class PropertyFinderHelper {
 				XPathExpression expr = xpath.compile("//result");// binding[@name
 																	// =
 																	// \"property\"]/uri/text()");
-
-				List<String> resultPairs = new ArrayList<String>();
-				NodeList nodes = (NodeList) expr.evaluate(document,
-						XPathConstants.NODESET);
-				for (int i = 0; i < nodes.getLength(); i++)
-					resultPairs.add(nodes.item(i).getNodeValue());
-
+				/*
+				 * Attempt to read property and value pairs from DBPedia Result
+				 */
 				String dbpProp = null;
 				String dbpVal = null;
 
-				if (resultPairs.size() > 0) {
+				NodeList nodes = (NodeList) expr.evaluate(document,
+						XPathConstants.NODESET);
+				for (int i = 0; i < nodes.getLength(); i++) {
+					dbpProp = null;
+					dbpVal = null;
+					NodeList childNodes = nodes.item(i).getChildNodes();
 
-					for (String resultPair : resultPairs) {
+					for (int j = 0; j < nodes.getLength(); j++) {
 
-						dbpProp = null;
-						dbpVal = null;
-						/*
-						 * Read DBPedia Property and corresponding value
-						 */
-						InputSource sourcePair = new InputSource(
-								new StringReader(resultPair));
-
-						DocumentBuilderFactory dbfPair = DocumentBuilderFactory
-								.newInstance();
-						DocumentBuilder dbPair;
-
-						dbPair = dbfPair.newDocumentBuilder();
-						Document documentPair = dbPair.parse(sourcePair);
-
-						XPathFactory xpathFactoryPair = XPathFactory.newInstance();
-						XPath xpathPair = xpathFactoryPair.newXPath();
-						
-						XPathExpression exprPair = xpathPair
-								.compile("//binding[@name = \"prop\"]/uri/text()");
-
-						NodeList nodesPair = (NodeList) exprPair.evaluate(documentPair,
-								XPathConstants.NODESET);
-						if (nodesPair.getLength() == 1) {
-							dbpProp = nodesPair.item(0).getNodeValue();
+						if (childNodes.item(j) == null) {
+							break;
 						}
-
-						exprPair = xpath
-								.compile("//binding[@name = \"value\"]/literal/text()");
-
-						nodesPair = (NodeList) exprPair.evaluate(documentPair,
-								XPathConstants.NODESET);
-						if (nodesPair.getLength() == 1) {
-							dbpVal = nodesPair.item(0).getNodeValue();
-						}
-
-						if (dbpProp != null && dbpVal != null) {
+						if (childNodes.item(j).getNodeName().equals("binding")) {
 
 							/*
-							 * calculate jaccard similarity for pair's value and
-							 * literal's value
+							 * Get the property value
 							 */
-							double sim = JaccardSimilarity.jaccardSimilarity(
-									ProcessTable.cleanTableCell(literals.get(key)), dbpVal);
-							if (sim > 0.5) {
+							NamedNodeMap attr = childNodes.item(j)
+									.getAttributes();
 
-								/*
-								 * sum up similarities
-								 */
-								if (resultMap.containsKey("<" + dbpProp + ">")) {
-									double helperSim = resultMap.get("<"
-											+ dbpProp + ">")
-											+ sim;
-									resultMap.put("<" + dbpProp + ">",
-											helperSim);
-								} else {
-									resultMap.put("<" + dbpProp + ">", sim);
+							if (attr.getNamedItem("name").getNodeValue()
+									.equals("prop")) {
+
+								dbpProp = childNodes.item(j).getChildNodes()
+										.item(0).getTextContent();
+							
+
+							}
+
+							/*
+							 * Get the value value
+							 */
+							if (attr.getNamedItem("name").getNodeValue()
+									.equals("value")) {
+
+								Node literalNode = childNodes.item(j)
+										.getChildNodes().item(0);
+								if (literalNode.getNodeName().equals("literal")) {
+									dbpVal = literalNode.getTextContent();
 								}
 							}
 						}
 					}
+
+					if (dbpProp != null && dbpVal != null && !dbpProp.isEmpty()
+							&& !dbpVal.isEmpty()) {
+						/*
+						 * calculate jaccard similarity for pair's value and
+						 * literal's value
+						 */
+						double sim = JaccardSimilarity.jaccardSimilarity(
+								ProcessTable.cleanTableCell(literals.get(key)),
+								dbpVal);
+						if (sim > 0.5) {
+
+							/*
+							 * sum up similarities
+							 */
+							if (resultMap.containsKey("<" + dbpProp + ">")) {
+								double helperSim = resultMap.get("<" + dbpProp
+										+ ">")
+										+ sim;
+								resultMap.put("<" + dbpProp + ">", helperSim);
+							} else {
+								resultMap.put("<" + dbpProp + ">", sim);
+							}
+						}
+
+					}
+
 				}
-			}			
-		}	
-		
+			}
+		}
 
 		/*
-		 * Calculate Confidence of each property
-		 * Iterate over resultMap and divide by literals.size()
+		 * Calculate Confidence of each property Iterate over resultMap and
+		 * divide by literals.size()
 		 */
 		for (String prop : resultMap.keySet()) {
-			resultMap.put(prop, (double) resultMap.get(prop)
-					/ literals.size());
+			resultMap.put(prop, (double) resultMap.get(prop) / literals.size());
 		}
-		
+
 		return result;
 
 	}
