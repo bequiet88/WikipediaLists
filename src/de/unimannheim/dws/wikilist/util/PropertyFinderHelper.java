@@ -221,7 +221,7 @@ public class PropertyFinderHelper {
 									.equals("prop")) {
 
 								dbpProp = childNodes.item(j).getChildNodes()
-										.item(0).getTextContent();
+										.item(1).getTextContent();
 							
 
 							}
@@ -233,7 +233,7 @@ public class PropertyFinderHelper {
 									.equals("value")) {
 
 								Node literalNode = childNodes.item(j)
-										.getChildNodes().item(0);
+										.getChildNodes().item(1);
 								if (literalNode.getNodeName().equals("literal")) {
 									dbpVal = literalNode.getTextContent();
 								}
@@ -250,7 +250,7 @@ public class PropertyFinderHelper {
 						double sim = JaccardSimilarity.jaccardSimilarity(
 								ProcessTable.cleanTableCell(literals.get(key)),
 								dbpVal);
-						if (sim > 0.5) {
+						if (sim > 0.7) {
 
 							/*
 							 * sum up similarities
