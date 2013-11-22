@@ -285,7 +285,8 @@ public class CopyOfWikiList {
 						String[] dbpediaAttribute = string.split("/");
 						rdfTag = dbpediaAttribute[3];
 						rdfTagPrefix = "dbpedia";
-					}
+					} else continue;
+					
 				} else {
 					String[] dbpediaAttribute = string.split(":");
 					rdfTag = dbpediaAttribute[1];
@@ -313,7 +314,7 @@ public class CopyOfWikiList {
 					else if (rdfTagPrefix.equals("dbpedia")) {
 						rdfPropUrl = "<http://dbpedia.org/"
 								+ rdfTag + ">";
-					}
+					} else continue;
 
 				}
 
@@ -359,13 +360,13 @@ public class CopyOfWikiList {
 				try {
 					int fileCount = 1;
 					File file = new File(pathToResult
-							+ "results/evaluation_"
+							+ "results/auto_eval/evaluation_"
 							+ wikiListName.replace('/', '_').replace(':', '_')
 									.replace('"', '_') + "_" + rdfTag + ".csv");
 					if (file.exists()) {
 						myEvalData.getEvalRes().writeOutputToCsv(
 								pathToResult
-										+ "results/evaluation_"
+										+ "results/auto_eval/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
 												.replace('"', '_') + "_"
@@ -376,7 +377,7 @@ public class CopyOfWikiList {
 					else {
 						myEvalData.getEvalRes().writeOutputToCsv(
 								pathToResult
-										+ "results/evaluation_"
+										+ "results/auto_eval/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
 												.replace('"', '_') + "_"
@@ -394,7 +395,7 @@ public class CopyOfWikiList {
 				evalRes.add(myEvalData.getEvalRes());
 				try {
 					evalRes.writeOutputToCsv(pathToResult
-							+ "results/evaluation_total.csv",
+							+ "results/auto_eval/evaluation_total.csv",
 							evalRes.getEvalMatrix());
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -442,14 +443,14 @@ public class CopyOfWikiList {
 					try {
 						int fileCount = 1;
 						File file = new File(pathToResult
-								+ "results/newTriples_"
+								+ "results/auto_eval/newTriples_"
 								+ wikiListName.replace('/', '_')
 										.replace(':', '_').replace('"', '_')
 								+ "_" + rdfTag + ".csv");
 						if (file.exists()) {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
-											+ "results/newTriples_"
+											+ "results/auto_eval/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
 													.replace('"', '_') + "_"
@@ -460,7 +461,7 @@ public class CopyOfWikiList {
 						else {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
-											+ "results/newTriples_"
+											+ "results/auto_eval/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
 													.replace('"', '_') + "_"

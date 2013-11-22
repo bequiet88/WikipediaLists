@@ -53,7 +53,7 @@ public class CopyOfCopyOfWikiList {
 	public static int columnPosition = 0;
 
 	/** The path to result. */
-	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";//"C:/Users/d049650/Documents/Uni_Workspace/";
+	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";// "C:/Users/d049650/Documents/Uni_Workspace/";
 
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
@@ -269,7 +269,8 @@ public class CopyOfCopyOfWikiList {
 				 */
 				List<Triple<String, String, String>> myUriTriples = new ArrayList<Triple<String, String, String>>();
 				HashMap<String, String> myLiteralMap = new HashMap<String, String>();
-				//List<Triple<String, String, String>> myLiteralTriples = new ArrayList<Triple<String, String, String>>();
+				// List<Triple<String, String, String>> myLiteralTriples = new
+				// ArrayList<Triple<String, String, String>>();
 
 				/*
 				 * Iterate over rows of column
@@ -294,7 +295,8 @@ public class CopyOfCopyOfWikiList {
 					 * Generate literal triples
 					 */
 					else {
-						myLiteralMap.put(dbpediaResMap.get("row" + rowCounter), row);
+						myLiteralMap.put(dbpediaResMap.get("row" + rowCounter),
+								row);
 					}
 
 					/*
@@ -323,6 +325,9 @@ public class CopyOfCopyOfWikiList {
 				ListPageDBPediaReader myDbpReader = new ListPageDBPediaReader();
 
 				try {
+					/*
+					 * Uri comparison
+					 */
 					if (myUriTriples.size() > 0) {
 
 						myDbpRes = new ReaderResource(myUriTriples);
@@ -330,12 +335,18 @@ public class CopyOfCopyOfWikiList {
 
 						myPropRes = myPropFinder.findUriProperty(myDbpReader
 								.readInput());
-						if (!myPropFinder.returnMaxConfidence(myPropRes)
-								.equals("error")) {
-							dbpediaAttributes.add(myPropFinder
-									.returnMaxConfidence(myPropRes));
-							PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
-									.getNoOfFoundCols() + 1);
+						String propUri = myPropFinder
+								.returnMaxConfidence(myPropRes, 0.05);
+						if (!propUri.equals("error")) {
+							dbpediaAttributes.add(propUri);
+							PropertyFinderResult
+									.setNoOfFoundCols(PropertyFinderResult
+											.getNoOfFoundCols() + 1);
+
+							/*
+							 * Literal comparison if uri comparison did not
+							 * yield a result
+							 */
 						} else if (myLiteralMap.size() > 0) {
 							if (myLiteralCache.size() == 0) {
 								myDbpRes = new ReaderResource(
@@ -344,30 +355,41 @@ public class CopyOfCopyOfWikiList {
 								myDbpReader.openInput(myDbpRes);
 								myLiteralCache = myDbpReader.readInput();
 							}
-							myPropRes = myPropFinder
-									.findLiteralProperty(myLiteralCache, myLiteralMap);
-							dbpediaAttributes.add(myPropFinder
-									.returnMaxConfidence(myPropRes));
-							PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
-									.getNoOfFoundCols() + 1);
+							myPropRes = myPropFinder.findLiteralProperty(
+									myLiteralCache, myLiteralMap);
+							String propUriLit = myPropFinder
+									.returnMaxConfidence(myPropRes, 0.05);
+							if (!propUriLit.equals("error")) {
+								PropertyFinderResult
+										.setNoOfFoundCols(PropertyFinderResult
+												.getNoOfFoundCols() + 1);
+							}
+							dbpediaAttributes.add(propUriLit);
 						}
-
-					} else if (myLiteralMap.size() > 0 && myUriTriples.size() == 0) {
+						/*
+						 * Literal comparison in case no uri triples were
+						 * obtained
+						 */
+					} else if (myLiteralMap.size() > 0
+							&& myUriTriples.size() == 0) {
 						if (myLiteralCache.size() == 0) {
 							myDbpRes = new ReaderResource(myLiteralTriplesCache);
 							myDbpReader = new ListPageDBPediaReader();
 							myDbpReader.openInput(myDbpRes);
 							myLiteralCache = myDbpReader.readInput();
 						}
-						myPropRes = myPropFinder
-								.findLiteralProperty(myLiteralCache, myLiteralMap);
-						dbpediaAttributes.add(myPropFinder
-								.returnMaxConfidence(myPropRes));
-						PropertyFinderResult.setNoOfFoundCols(PropertyFinderResult
-								.getNoOfFoundCols() + 1);
-					}
-					else {
-						dbpediaAttributes.add("error");								
+						myPropRes = myPropFinder.findLiteralProperty(
+								myLiteralCache, myLiteralMap);
+						String propLit = myPropFinder
+								.returnMaxConfidence(myPropRes, 0.05);
+						if(!propLit.equals("error")) {
+							PropertyFinderResult
+							.setNoOfFoundCols(PropertyFinderResult
+									.getNoOfFoundCols() + 1);							
+						}
+						dbpediaAttributes.add(propLit);
+					} else {
+						dbpediaAttributes.add("error");
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -386,31 +408,35 @@ public class CopyOfCopyOfWikiList {
 					try {
 						int fileCount = 1;
 						File file = new File(pathToResult
-								+ "results/confidences_"
+								+ "results/confidences_0.05/confidences_"
 								+ wikiListName.replace('/', '_')
 										.replace(':', '_').replace('"', '_')
 								+ "_columne_" + i + ".csv");
 						if (file.exists()) {
-							myPropRes.writeOutputToCsv(
-									pathToResult
-											+ "results/evaluation_"
-											+ wikiListName.replace('/', '_')
-													.replace(':', '_')
-													.replace('"', '_')
-											+ "_column_" + i + "_"
-											+ fileCount++ + ".csv",
-									myPropRes.getMap());
+							myPropRes
+									.writeOutputToCsv(
+											pathToResult
+													+ "results/confidences_0.05/confidences_"
+													+ wikiListName
+															.replace('/', '_')
+															.replace(':', '_')
+															.replace('"', '_')
+													+ "_column_" + i + "_"
+													+ fileCount++ + ".csv",
+											myPropRes.getMap());
 						}
 
 						else {
-							myPropRes.writeOutputToCsv(
-									pathToResult
-											+ "results/evaluation_"
-											+ wikiListName.replace('/', '_')
-													.replace(':', '_')
-													.replace('"', '_')
-											+ "_column_" + i + ".csv",
-									myPropRes.getMap());
+							myPropRes
+									.writeOutputToCsv(
+											pathToResult
+													+ "results/confidences_0.05/confidences_"
+													+ wikiListName
+															.replace('/', '_')
+															.replace(':', '_')
+															.replace('"', '_')
+													+ "_column_" + i + ".csv",
+											myPropRes.getMap());
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -429,12 +455,14 @@ public class CopyOfCopyOfWikiList {
 		/*
 		 * Pass List of Table Rows to new value evaluation
 		 */
-		System.out.println("No of columns look at: "
+		
+		CopyOfWikiList.wikiListEvaluation(myRowList);
+
+		System.out.println("No of columns look at to find properties: "
 				+ PropertyFinderResult.getNoOfInvestigatedCols());
 		System.out.println("No of properties found: "
 				+ PropertyFinderResult.getNoOfFoundCols());
-		// CopyOfWikiList.wikiListEvaluation(myRowList);
-
+		
 	}
 
 }

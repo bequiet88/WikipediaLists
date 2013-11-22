@@ -199,40 +199,13 @@ public class PropertyFinderHelper {
 
 				NodeList nodes = (NodeList) expr.evaluate(document,
 						XPathConstants.NODESET);
-<<<<<<< HEAD
-				for (int i = 0; i < nodes.getLength(); i++) 
-					
-//					String dbpProp = null;
-//					String dbpVal = null;
-//
-//					NodeList childNodes = nodes.item(i).getChildNodes();
-//					
-//					for (int j = 0; j < childNodes.getLength(); j++) {
-//						
-//						if(childNodes.item(j).getNodeName().equals("binding")) {
-//							
-//							childNodes.item(j).getAttributes()
-//							
-//							
-//						}
-//						
-//						
-//						
-//					}
-//					
-//					
-//					
-//				}
-					resultPairs.add(nodes.item(i).getNodeValue());
 
-=======
 				for (int i = 0; i < nodes.getLength(); i++) {
 					dbpProp = null;
 					dbpVal = null;
 					NodeList childNodes = nodes.item(i).getChildNodes();
 
 					for (int j = 0; j < nodes.getLength(); j++) {
->>>>>>> d109ac68d4af2d1a96af898b5de784934b841a08
 
 						if (childNodes.item(j) == null) {
 							break;
@@ -245,40 +218,11 @@ public class PropertyFinderHelper {
 							NamedNodeMap attr = childNodes.item(j)
 									.getAttributes();
 
-<<<<<<< HEAD
-						String dbpProp = null;
-						String dbpVal = null;						/*
-						 * Read DBPedia Property and corresponding value
-						 */
-						InputSource sourcePair = new InputSource(
-								new StringReader(resultPair));
-
-						DocumentBuilderFactory dbfPair = DocumentBuilderFactory
-								.newInstance();
-						DocumentBuilder dbPair;
-
-						dbPair = dbfPair.newDocumentBuilder();
-						Document documentPair = dbPair.parse(sourcePair);
-
-						XPathFactory xpathFactoryPair = XPathFactory.newInstance();
-						XPath xpathPair = xpathFactoryPair.newXPath();
-						
-						XPathExpression exprPair = xpathPair
-								.compile("//binding[@name = \"prop\"]/uri/text()");
-
-						NodeList nodesPair = (NodeList) exprPair.evaluate(documentPair,
-								XPathConstants.NODESET);
-						if (nodesPair.getLength() == 1) {
-							dbpProp = nodesPair.item(0).getNodeValue();
-						}
-=======
 							if (attr.getNamedItem("name").getNodeValue()
 									.equals("prop")) {
 
 								dbpProp = childNodes.item(j).getChildNodes()
 										.item(1).getTextContent();
-							
->>>>>>> d109ac68d4af2d1a96af898b5de784934b841a08
 
 							}
 
@@ -347,6 +291,20 @@ public class PropertyFinderHelper {
 	 * @return the string
 	 */
 	public String returnMaxConfidence(PropertyFinderResult res) {
+		return returnMaxConfidence(res, -1);
+	}
+	
+	
+	/**
+	 * Return max confidence.
+	 * 
+	 * @param res
+	 *            the res
+	 * @param threshold
+	 * 			  minimum value of the found property to be returned           
+	 * @return the string
+	 */
+	public String returnMaxConfidence(PropertyFinderResult res, double threshold) {
 
 		if (res.getMap().size() == 0) {
 			return "error";
@@ -360,7 +318,14 @@ public class PropertyFinderHelper {
 					maxConf = entry.getValue();
 				}
 			}
-			return maxProp;
+			if(threshold != -1) {
+				if(maxConf > threshold)
+					return maxProp;
+				else
+					return "error";
+			} else {
+				return maxProp;
+			}
 		}
 	}
 
