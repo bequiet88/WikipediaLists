@@ -29,7 +29,7 @@ public class CopyOfWikiList {
 
 	/** The rdf tag prefix. */
 	public static String rdfTagPrefix = "";
-	
+
 	/** The rdf property url. */
 	public static String rdfPropUrl = "";
 
@@ -260,12 +260,13 @@ public class CopyOfWikiList {
 				if (string.startsWith("<http")) {
 
 					rdfPropUrl = string;
-					
+
 					if (string.contains("http://xmlns.com/foaf/0.1/")) {
 						String[] dbpediaAttribute = string.split("/");
 						rdfTag = dbpediaAttribute[5];
 						rdfTagPrefix = dbpediaAttribute[3];
-					} else if (string.contains("http://purl.org/dc/elements/1.1/")) {
+					} else if (string
+							.contains("http://purl.org/dc/elements/1.1/")) {
 						String[] dbpediaAttribute = string.split("/");
 						rdfTag = dbpediaAttribute[6];
 						rdfTagPrefix = dbpediaAttribute[3];
@@ -285,36 +286,34 @@ public class CopyOfWikiList {
 						String[] dbpediaAttribute = string.split("/");
 						rdfTag = dbpediaAttribute[3];
 						rdfTagPrefix = "dbpedia";
-					} else continue;
-					
+					} else
+						continue;
+
 				} else {
 					String[] dbpediaAttribute = string.split(":");
 					rdfTag = dbpediaAttribute[1];
 					rdfTagPrefix = dbpediaAttribute[0];
-					
-					if(rdfTagPrefix.equals("foaf")) {
-						rdfPropUrl = "<http://xmlns.com/foaf/0.1/"+rdfTag+">";
-					}
-					else if (rdfTagPrefix.equals("dc")) {
+
+					if (rdfTagPrefix.equals("foaf")) {
+						rdfPropUrl = "<http://xmlns.com/foaf/0.1/" + rdfTag
+								+ ">";
+					} else if (rdfTagPrefix.equals("dc")) {
 						rdfPropUrl = "<http://purl.org/dc/elements/1.1/"
 								+ rdfTag + ">";
-					}
-					else if (rdfTagPrefix.equals("")) {
-						rdfPropUrl = "<http://dbpedia.org/resource/"
-								+ rdfTag + ">";
-					}
-					else if (rdfTagPrefix.equals("dbpprop")) {
-						rdfPropUrl = "<http://dbpedia.org/property/"
-								+ rdfTag + ">";
-					}
-					else if (rdfTagPrefix.equals("dbpedia-owl") || rdfTagPrefix.equals("owl")) {
-						rdfPropUrl = "<http://dbpedia.org/ontology/"
-								+ rdfTag + ">";
-					}
-					else if (rdfTagPrefix.equals("dbpedia")) {
-						rdfPropUrl = "<http://dbpedia.org/"
-								+ rdfTag + ">";
-					} else continue;
+					} else if (rdfTagPrefix.equals("")) {
+						rdfPropUrl = "<http://dbpedia.org/resource/" + rdfTag
+								+ ">";
+					} else if (rdfTagPrefix.equals("dbpprop")) {
+						rdfPropUrl = "<http://dbpedia.org/property/" + rdfTag
+								+ ">";
+					} else if (rdfTagPrefix.equals("dbpedia-owl")
+							|| rdfTagPrefix.equals("owl")) {
+						rdfPropUrl = "<http://dbpedia.org/ontology/" + rdfTag
+								+ ">";
+					} else if (rdfTagPrefix.equals("dbpedia")) {
+						rdfPropUrl = "<http://dbpedia.org/" + rdfTag + ">";
+					} else
+						continue;
 
 				}
 
@@ -360,13 +359,17 @@ public class CopyOfWikiList {
 				try {
 					int fileCount = 1;
 					File file = new File(pathToResult
-							+ "results/auto_eval/evaluation_"
+							+ "results/auto_eval_"
+							+ CopyOfCopyOfWikiList.threshold
+							+ "/evaluation_"
 							+ wikiListName.replace('/', '_').replace(':', '_')
 									.replace('"', '_') + "_" + rdfTag + ".csv");
 					if (file.exists()) {
 						myEvalData.getEvalRes().writeOutputToCsv(
 								pathToResult
-										+ "results/auto_eval/evaluation_"
+										+ "results/auto_eval_"
+										+ CopyOfCopyOfWikiList.threshold
+										+ "/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
 												.replace('"', '_') + "_"
@@ -377,7 +380,9 @@ public class CopyOfWikiList {
 					else {
 						myEvalData.getEvalRes().writeOutputToCsv(
 								pathToResult
-										+ "results/auto_eval/evaluation_"
+										+ "results/auto_eval_"
+										+ CopyOfCopyOfWikiList.threshold
+										+ "/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
 												.replace('"', '_') + "_"
@@ -395,8 +400,9 @@ public class CopyOfWikiList {
 				evalRes.add(myEvalData.getEvalRes());
 				try {
 					evalRes.writeOutputToCsv(pathToResult
-							+ "results/auto_eval/evaluation_total.csv",
-							evalRes.getEvalMatrix());
+							+ "results/auto_eval_"
+							+ CopyOfCopyOfWikiList.threshold
+							+ "/evaluation_total.csv", evalRes.getEvalMatrix());
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
@@ -443,14 +449,18 @@ public class CopyOfWikiList {
 					try {
 						int fileCount = 1;
 						File file = new File(pathToResult
-								+ "results/auto_eval/newTriples_"
+								+ "results/auto_eval_"
+								+ CopyOfCopyOfWikiList.threshold
+								+ "/newTriples_"
 								+ wikiListName.replace('/', '_')
 										.replace(':', '_').replace('"', '_')
 								+ "_" + rdfTag + ".csv");
 						if (file.exists()) {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
-											+ "results/auto_eval/newTriples_"
+											+ "results/auto_eval_"
+											+ CopyOfCopyOfWikiList.threshold
+											+ "/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
 													.replace('"', '_') + "_"
@@ -461,7 +471,9 @@ public class CopyOfWikiList {
 						else {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
-											+ "results/auto_eval/newTriples_"
+											+ "results/auto_eval_"
+											+ CopyOfCopyOfWikiList.threshold
+											+ "/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
 													.replace('"', '_') + "_"

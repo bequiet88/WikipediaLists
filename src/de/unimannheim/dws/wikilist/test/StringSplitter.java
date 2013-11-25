@@ -10,6 +10,9 @@ public class StringSplitter {
 	public static void main(String[] args) throws UnsupportedEncodingException {
 		// TODO Auto-generated method stub
 		
+		System.out.println("" + 0.10);
+		
+		
 		String url = "http://en.wikipedia.org/wiki/List_of_members_of_the_European_Parliament_for_the_United_Kingdom,_2004–2009";
 		System.out.println(URLDecoder.decode(url, "UTF-8"));
 		

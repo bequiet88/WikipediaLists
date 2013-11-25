@@ -288,26 +288,30 @@ public class PropertyFinderHelper {
 	 * 
 	 * @param res
 	 *            the res
-	 * @return the string
+	 * @return the string[] pos 0: property label, pos 1: property confidence
 	 */
-	public String returnMaxConfidence(PropertyFinderResult res) {
+	public String[] returnMaxConfidence(PropertyFinderResult res) {
 		return returnMaxConfidence(res, -1);
 	}
-	
-	
+
 	/**
 	 * Return max confidence.
 	 * 
 	 * @param res
 	 *            the res
 	 * @param threshold
-	 * 			  minimum value of the found property to be returned           
-	 * @return the string
+	 *            minimum value of the found property to be returned
+	 * @return the string[] pos 0: property label, pos 1: property confidence
 	 */
-	public String returnMaxConfidence(PropertyFinderResult res, double threshold) {
+	public String[] returnMaxConfidence(PropertyFinderResult res,
+			double threshold) {
+
+		String[] result = new String[2];
 
 		if (res.getMap().size() == 0) {
-			return "error";
+			result[0] = "error";
+			result[1] = "0";
+			return result;
 		} else {
 			// find max
 			double maxConf = 0;
@@ -318,13 +322,21 @@ public class PropertyFinderHelper {
 					maxConf = entry.getValue();
 				}
 			}
-			if(threshold != -1) {
-				if(maxConf > threshold)
-					return maxProp;
-				else
-					return "error";
+			if (threshold != -1) {
+				if (maxConf > threshold) {
+					result[0] = maxProp;
+					result[1] = ""+maxConf;
+					return result;
+				}
+				else {
+					result[0] = "error";
+					result[1] = "0";
+					return result;
+				}
 			} else {
-				return maxProp;
+				result[0] = maxProp;
+				result[1] = ""+maxConf;
+				return result;
 			}
 		}
 	}

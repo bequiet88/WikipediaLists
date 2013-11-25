@@ -53,10 +53,13 @@ public class CopyOfCopyOfWikiList {
 	public static int columnPosition = 0;
 
 	/** The path to result. */
-	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";// "C:/Users/d049650/Documents/Uni_Workspace/";
+	public static String pathToResult = "C:/Users/d049650/Documents/Uni_Workspace/";//"D:/Studium/Classes_Sem3/Seminar/Codebase/";
 
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
+
+	/** The threshold. */
+	public static double threshold = 0;
 
 	/**
 	 * The main method.
@@ -93,6 +96,7 @@ public class CopyOfCopyOfWikiList {
 		}
 
 		List<TableRow> myRowList = new ArrayList<TableRow>();
+		List<List<String>> myPrintList = new ArrayList<List<String>>();
 
 		System.out.println("done!");
 
@@ -227,6 +231,7 @@ public class CopyOfCopyOfWikiList {
 			TableRow myCurrRow = new TableRow(list);
 			List<String> dbpediaAttributes = new ArrayList<String>();
 			myCurrRow.setDbpediaAttributes(dbpediaAttributes);
+			List<String> dbpediaConfidences = new ArrayList<String>();
 
 			/*
 			 * Reset column counter.
@@ -335,10 +340,11 @@ public class CopyOfCopyOfWikiList {
 
 						myPropRes = myPropFinder.findUriProperty(myDbpReader
 								.readInput());
-						String propUri = myPropFinder
-								.returnMaxConfidence(myPropRes, 0.05);
+						String propUri[] = myPropFinder.returnMaxConfidence(
+								myPropRes, threshold);
 						if (!propUri.equals("error")) {
-							dbpediaAttributes.add(propUri);
+							dbpediaAttributes.add(propUri[0]);
+							dbpediaConfidences.add(propUri[1]);
 							PropertyFinderResult
 									.setNoOfFoundCols(PropertyFinderResult
 											.getNoOfFoundCols() + 1);
@@ -357,14 +363,15 @@ public class CopyOfCopyOfWikiList {
 							}
 							myPropRes = myPropFinder.findLiteralProperty(
 									myLiteralCache, myLiteralMap);
-							String propUriLit = myPropFinder
-									.returnMaxConfidence(myPropRes, 0.05);
+							String[] propUriLit = myPropFinder
+									.returnMaxConfidence(myPropRes, threshold);
 							if (!propUriLit.equals("error")) {
 								PropertyFinderResult
 										.setNoOfFoundCols(PropertyFinderResult
 												.getNoOfFoundCols() + 1);
 							}
-							dbpediaAttributes.add(propUriLit);
+							dbpediaAttributes.add(propUriLit[0]);
+							dbpediaConfidences.add(propUriLit[1]);
 						}
 						/*
 						 * Literal comparison in case no uri triples were
@@ -380,14 +387,15 @@ public class CopyOfCopyOfWikiList {
 						}
 						myPropRes = myPropFinder.findLiteralProperty(
 								myLiteralCache, myLiteralMap);
-						String propLit = myPropFinder
-								.returnMaxConfidence(myPropRes, 0.05);
-						if(!propLit.equals("error")) {
+						String[] propLit = myPropFinder.returnMaxConfidence(
+								myPropRes, threshold);
+						if (!propLit.equals("error")) {
 							PropertyFinderResult
-							.setNoOfFoundCols(PropertyFinderResult
-									.getNoOfFoundCols() + 1);							
+									.setNoOfFoundCols(PropertyFinderResult
+											.getNoOfFoundCols() + 1);
 						}
-						dbpediaAttributes.add(propLit);
+						dbpediaAttributes.add(propLit[0]);
+						dbpediaConfidences.add(propLit[1]);
 					} else {
 						dbpediaAttributes.add("error");
 					}
@@ -408,35 +416,37 @@ public class CopyOfCopyOfWikiList {
 					try {
 						int fileCount = 1;
 						File file = new File(pathToResult
-								+ "results/confidences_0.05/confidences_"
+								+ "results/confidences_"
+								+ threshold
+								+ "/confidences_"
 								+ wikiListName.replace('/', '_')
 										.replace(':', '_').replace('"', '_')
 								+ "_columne_" + i + ".csv");
 						if (file.exists()) {
-							myPropRes
-									.writeOutputToCsv(
-											pathToResult
-													+ "results/confidences_0.05/confidences_"
-													+ wikiListName
-															.replace('/', '_')
-															.replace(':', '_')
-															.replace('"', '_')
-													+ "_column_" + i + "_"
-													+ fileCount++ + ".csv",
-											myPropRes.getMap());
+							myPropRes.writeOutputToCsv(
+									pathToResult
+											+ "results/confidences_"
+											+ threshold
+											+ "/confidences_"
+											+ wikiListName.replace('/', '_')
+													.replace(':', '_')
+													.replace('"', '_')
+											+ "_column_" + i + "_"
+											+ fileCount++ + ".csv",
+									myPropRes.getMap());
 						}
 
 						else {
-							myPropRes
-									.writeOutputToCsv(
-											pathToResult
-													+ "results/confidences_0.05/confidences_"
-													+ wikiListName
-															.replace('/', '_')
-															.replace(':', '_')
-															.replace('"', '_')
-													+ "_column_" + i + ".csv",
-											myPropRes.getMap());
+							myPropRes.writeOutputToCsv(
+									pathToResult
+											+ "results/confidences_"
+											+ threshold
+											+ "/confidences_"
+											+ wikiListName.replace('/', '_')
+													.replace(':', '_')
+													.replace('"', '_')
+											+ "_column_" + i + ".csv",
+									myPropRes.getMap());
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -449,20 +459,43 @@ public class CopyOfCopyOfWikiList {
 
 			System.out.println(dbpediaAttributes.toString());
 			myRowList.add(myCurrRow);
+			List<String> attributes = new ArrayList<String>();
+			attributes.add(wikiListURL);
+			attributes.addAll(dbpediaAttributes);
+			myPrintList.add(attributes);
+			List<String> confidences = new ArrayList<String>();
+			attributes.add("");
+			attributes.addAll(dbpediaConfidences);
+			myPrintList.add(confidences);
 
 		}
 
 		/*
 		 * Pass List of Table Rows to new value evaluation
 		 */
-		
+
+		List<String> overview = new ArrayList<String>();
+		overview.add("No of columns look at to find properties:");
+		overview.add("" + PropertyFinderResult.getNoOfInvestigatedCols());
+		overview.add("No of properties found:");
+		overview.add("" + PropertyFinderResult.getNoOfFoundCols());
+		myPrintList.add(0, overview);
+
+		EvaluationResult printer = new EvaluationResult();
+		try {
+			printer.writeOutputToCsv(pathToResult + "results/confidences_"
+					+ threshold + "/confidences_overview.csv", myPrintList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		CopyOfWikiList.wikiListEvaluation(myRowList);
 
 		System.out.println("No of columns look at to find properties: "
 				+ PropertyFinderResult.getNoOfInvestigatedCols());
 		System.out.println("No of properties found: "
 				+ PropertyFinderResult.getNoOfFoundCols());
-		
+
 	}
 
 }
