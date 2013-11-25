@@ -59,7 +59,7 @@ public class CopyOfCopyOfWikiList {
 	public static EvaluationResult evalRes = new EvaluationResult();
 
 	/** The threshold. */
-	public static double threshold = 0;
+	public static double threshold = 0.95;
 
 	/**
 	 * The main method.
@@ -261,6 +261,7 @@ public class CopyOfCopyOfWikiList {
 				if (columnPosition == columnInstance) {
 					columnPosition++;
 					dbpediaAttributes.add("Column of Entity");
+					dbpediaConfidences.add("");
 					continue;
 				}
 
@@ -345,10 +346,7 @@ public class CopyOfCopyOfWikiList {
 						if (!propUri.equals("error")) {
 							dbpediaAttributes.add(propUri[0]);
 							dbpediaConfidences.add(propUri[1]);
-							PropertyFinderResult
-									.setNoOfFoundCols(PropertyFinderResult
-											.getNoOfFoundCols() + 1);
-
+							
 							/*
 							 * Literal comparison if uri comparison did not
 							 * yield a result
@@ -365,11 +363,6 @@ public class CopyOfCopyOfWikiList {
 									myLiteralCache, myLiteralMap);
 							String[] propUriLit = myPropFinder
 									.returnMaxConfidence(myPropRes, threshold);
-							if (!propUriLit.equals("error")) {
-								PropertyFinderResult
-										.setNoOfFoundCols(PropertyFinderResult
-												.getNoOfFoundCols() + 1);
-							}
 							dbpediaAttributes.add(propUriLit[0]);
 							dbpediaConfidences.add(propUriLit[1]);
 						}
@@ -389,11 +382,6 @@ public class CopyOfCopyOfWikiList {
 								myLiteralCache, myLiteralMap);
 						String[] propLit = myPropFinder.returnMaxConfidence(
 								myPropRes, threshold);
-						if (!propLit.equals("error")) {
-							PropertyFinderResult
-									.setNoOfFoundCols(PropertyFinderResult
-											.getNoOfFoundCols() + 1);
-						}
 						dbpediaAttributes.add(propLit[0]);
 						dbpediaConfidences.add(propLit[1]);
 					} else {
@@ -464,8 +452,8 @@ public class CopyOfCopyOfWikiList {
 			attributes.addAll(dbpediaAttributes);
 			myPrintList.add(attributes);
 			List<String> confidences = new ArrayList<String>();
-			attributes.add("");
-			attributes.addAll(dbpediaConfidences);
+			confidences.add("");
+			confidences.addAll(dbpediaConfidences);
 			myPrintList.add(confidences);
 
 		}
@@ -484,7 +472,7 @@ public class CopyOfCopyOfWikiList {
 		EvaluationResult printer = new EvaluationResult();
 		try {
 			printer.writeOutputToCsv(pathToResult + "results/confidences_"
-					+ threshold + "/confidences_overview.csv", myPrintList);
+					+ threshold + "/confidences_overview_" + threshold + ".csv", myPrintList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -52,7 +52,7 @@ public class CopyOfWikiList {
 	public static int columnPosition = 0;
 
 	/** The path to result. */
-	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";
+	public static String pathToResult = "C:/Users/d049650/Documents/Uni_Workspace/";//"D:/Studium/Classes_Sem3/Seminar/Codebase/";
 
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
@@ -238,6 +238,12 @@ public class CopyOfWikiList {
 			for (String string : row.getDbpediaAttributes()) {
 
 				/*
+				 * Reset properties
+				 */
+				rdfTag = "";
+				rdfTagPrefix = "";
+				
+				/*
 				 * If column is empty, continue
 				 */
 				if (string == null || string.trim().equals("")) {
@@ -260,34 +266,36 @@ public class CopyOfWikiList {
 				if (string.startsWith("<http")) {
 
 					rdfPropUrl = string;
-
-					if (string.contains("http://xmlns.com/foaf/0.1/")) {
-						String[] dbpediaAttribute = string.split("/");
-						rdfTag = dbpediaAttribute[5];
-						rdfTagPrefix = dbpediaAttribute[3];
-					} else if (string
-							.contains("http://purl.org/dc/elements/1.1/")) {
-						String[] dbpediaAttribute = string.split("/");
-						rdfTag = dbpediaAttribute[6];
-						rdfTagPrefix = dbpediaAttribute[3];
-					} else if (string.contains("http://dbpedia.org/resource/")) {
-						String[] dbpediaAttribute = string.split("/");
-						rdfTag = dbpediaAttribute[4];
-						rdfTagPrefix = "";
-					} else if (string.contains("http://dbpedia.org/property/")) {
-						String[] dbpediaAttribute = string.split("/");
-						rdfTag = dbpediaAttribute[4];
-						rdfTagPrefix = "dbpprop";
-					} else if (string.contains("http://dbpedia.org/ontology/")) {
-						String[] dbpediaAttribute = string.split("/");
-						rdfTag = dbpediaAttribute[4];
-						rdfTagPrefix = "dbpedia-owl";
-					} else if (string.contains("http://dbpedia.org/")) {
-						String[] dbpediaAttribute = string.split("/");
-						rdfTag = dbpediaAttribute[3];
-						rdfTagPrefix = "dbpedia";
-					} else
-						continue;
+					rdfTag = string;
+					rdfTagPrefix = "";
+					
+//					if (string.contains("http://xmlns.com/foaf/0.1/")) {
+//						String[] dbpediaAttribute = string.split("/");
+//						rdfTag = dbpediaAttribute[5];
+//						rdfTagPrefix = dbpediaAttribute[3];
+//					} else if (string
+//							.contains("http://purl.org/dc/elements/1.1/")) {
+//						String[] dbpediaAttribute = string.split("/");
+//						rdfTag = dbpediaAttribute[6];
+//						rdfTagPrefix = dbpediaAttribute[3];
+//					} else if (string.contains("http://dbpedia.org/resource/")) {
+//						String[] dbpediaAttribute = string.split("/");
+//						rdfTag = dbpediaAttribute[4];
+//						rdfTagPrefix = "";
+//					} else if (string.contains("http://dbpedia.org/property/")) {
+//						String[] dbpediaAttribute = string.split("/");
+//						rdfTag = dbpediaAttribute[4];
+//						rdfTagPrefix = "dbpprop";
+//					} else if (string.contains("http://dbpedia.org/ontology/")) {
+//						String[] dbpediaAttribute = string.split("/");
+//						rdfTag = dbpediaAttribute[4];
+//						rdfTagPrefix = "dbpedia-owl";
+//					} else if (string.contains("http://dbpedia.org/")) {
+//						String[] dbpediaAttribute = string.split("/");
+//						rdfTag = dbpediaAttribute[3];
+//						rdfTagPrefix = "dbpedia";
+//					} else
+//						continue;
 
 				} else {
 					String[] dbpediaAttribute = string.split(":");
@@ -312,9 +320,7 @@ public class CopyOfWikiList {
 								+ ">";
 					} else if (rdfTagPrefix.equals("dbpedia")) {
 						rdfPropUrl = "<http://dbpedia.org/" + rdfTag + ">";
-					} else
-						continue;
-
+					}
 				}
 
 				/****************************************************************
@@ -363,7 +369,7 @@ public class CopyOfWikiList {
 							+ CopyOfCopyOfWikiList.threshold
 							+ "/evaluation_"
 							+ wikiListName.replace('/', '_').replace(':', '_')
-									.replace('"', '_') + "_" + rdfTag + ".csv");
+									.replace('"', '_') + "_column" + columnPosition + ".csv");
 					if (file.exists()) {
 						myEvalData.getEvalRes().writeOutputToCsv(
 								pathToResult
@@ -372,8 +378,8 @@ public class CopyOfWikiList {
 										+ "/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
-												.replace('"', '_') + "_"
-										+ rdfTag + "_" + fileCount++ + ".csv",
+												.replace('"', '_') + "_column"
+										+ columnPosition + "_" + fileCount++ + ".csv",
 								myEvalMatrix);
 					}
 
@@ -385,8 +391,8 @@ public class CopyOfWikiList {
 										+ "/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
-												.replace('"', '_') + "_"
-										+ rdfTag + ".csv", myEvalMatrix);
+												.replace('"', '_') + "_column"
+										+ columnPosition + ".csv", myEvalMatrix);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -402,7 +408,7 @@ public class CopyOfWikiList {
 					evalRes.writeOutputToCsv(pathToResult
 							+ "results/auto_eval_"
 							+ CopyOfCopyOfWikiList.threshold
-							+ "/evaluation_total.csv", evalRes.getEvalMatrix());
+							+ "/evaluation_total" + CopyOfCopyOfWikiList.threshold + ".csv", evalRes.getEvalMatrix());
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
@@ -454,7 +460,7 @@ public class CopyOfWikiList {
 								+ "/newTriples_"
 								+ wikiListName.replace('/', '_')
 										.replace(':', '_').replace('"', '_')
-								+ "_" + rdfTag + ".csv");
+								+ "_column_" + columnPosition + ".csv");
 						if (file.exists()) {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
@@ -463,8 +469,8 @@ public class CopyOfWikiList {
 											+ "/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
-													.replace('"', '_') + "_"
-											+ rdfTag + "_" + fileCount++
+													.replace('"', '_') + "_column"
+											+ columnPosition + "_" + fileCount++
 											+ ".csv", myRdfTriples);
 						}
 
@@ -476,8 +482,8 @@ public class CopyOfWikiList {
 											+ "/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
-													.replace('"', '_') + "_"
-											+ rdfTag + ".csv", myRdfTriples);
+													.replace('"', '_') + "_column"
+											+ columnPosition + ".csv", myRdfTriples);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();

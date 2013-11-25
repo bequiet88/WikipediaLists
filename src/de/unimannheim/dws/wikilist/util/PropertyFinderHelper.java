@@ -326,6 +326,9 @@ public class PropertyFinderHelper {
 				if (maxConf > threshold) {
 					result[0] = maxProp;
 					result[1] = ""+maxConf;
+					PropertyFinderResult
+					.setNoOfFoundCols(PropertyFinderResult
+							.getNoOfFoundCols() + 1);
 					return result;
 				}
 				else {
@@ -336,6 +339,9 @@ public class PropertyFinderHelper {
 			} else {
 				result[0] = maxProp;
 				result[1] = ""+maxConf;
+				PropertyFinderResult
+				.setNoOfFoundCols(PropertyFinderResult
+						.getNoOfFoundCols() + 1);
 				return result;
 			}
 		}

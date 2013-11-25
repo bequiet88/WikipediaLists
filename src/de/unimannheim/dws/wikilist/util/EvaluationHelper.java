@@ -89,8 +89,7 @@ public class EvaluationHelper {
 				 * format
 				 */
 
-				XPathExpression expr = xpath.compile("//binding[@name = \""
-						+ CopyOfWikiList.rdfTag + "\"]/uri/text()");
+				XPathExpression expr = xpath.compile("//binding[@name = \"value\"]/uri/text()");
 
 				// "/Employees/Employee[gender='Female']/name/text()");
 

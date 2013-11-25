@@ -166,7 +166,7 @@ public class AnnotationHelper {
 
 				// evaluate expression result on XML document
 				XPathExpression expr = xpath
-						.compile("//binding[@name = \"title\"]/uri/text()");
+						.compile("//binding[@name = \"value\"]/uri/text()");
 
 				// "/Employees/Employee[gender='Female']/name/text()");
 				List<String> values = new ArrayList<String>();

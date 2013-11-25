@@ -85,19 +85,33 @@ public class ListPageDBPediaReader implements
 
 					if (!dbpInstance.equals("")) {
 
-						queryStr = prefix
-								+
+						if(!dbpRes.getAttrPrefix().equals("")) {
+							queryStr = prefix
+									+
 
-								/*
-								 * Example Query for
-								 * http://en.wikipedia.org/wiki
-								 * /List_of_Peers_1330 -1339 Instances
-								 */
-								"SELECT * WHERE {"
-								// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
-								+ dbpInstance + " " + dbpRes.getAttrPrefix()
-								+ ":" + dbpRes.getAttribute() + " ?"
-								+ dbpRes.getAttribute() + ". }";
+									/*
+									 * Example Query for
+									 * http://en.wikipedia.org/wiki
+									 * /List_of_Peers_1330 -1339 Instances
+									 */
+									"SELECT * WHERE {"
+									// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
+									+ dbpInstance + " " + dbpRes.getAttrPrefix()
+									+ ":" + dbpRes.getAttribute() + " ?value . }";							
+						}
+						else {
+							queryStr = prefix
+									+
+
+									/*
+									 * Example Query for
+									 * http://en.wikipedia.org/wiki
+									 * /List_of_Peers_1330 -1339 Instances
+									 */
+									"SELECT * WHERE {"
+									// +"<http://dbpedia.org/resource/Henry_Plantagenet,_3rd_Earl_of_Leicster_and_Lancaster> dbpprop:title ?title. }";
+									+ dbpInstance + " " + dbpRes.getAttribute() + " ?value . }";
+						}
 
 						query = QueryFactory.create(queryStr);
 
