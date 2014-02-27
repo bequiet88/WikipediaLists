@@ -52,7 +52,7 @@ public class CopyOfWikiList {
 	public static int columnPosition = 0;
 
 	/** The path to result. */
-	public static String pathToResult = "C:/Users/d049650/Documents/Uni_Workspace/";//"D:/Studium/Classes_Sem3/Seminar/Codebase/";
+	public static String pathToResult = "D:/Studium/Classes_Sem3/Seminar/Codebase/";//"C:/Users/d049650/Documents/Uni_Workspace/";//
 
 	/** The eval res. */
 	public static EvaluationResult evalRes = new EvaluationResult();
@@ -365,16 +365,14 @@ public class CopyOfWikiList {
 				try {
 					int fileCount = 1;
 					File file = new File(pathToResult
-							+ "results/auto_eval_"
-							+ CopyOfCopyOfWikiList.threshold
+							+ "results/manual_eval"
 							+ "/evaluation_"
 							+ wikiListName.replace('/', '_').replace(':', '_')
 									.replace('"', '_') + "_column" + columnPosition + ".csv");
 					if (file.exists()) {
 						myEvalData.getEvalRes().writeOutputToCsv(
 								pathToResult
-										+ "results/auto_eval_"
-										+ CopyOfCopyOfWikiList.threshold
+										+ "results/manual_eval"
 										+ "/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
@@ -386,8 +384,7 @@ public class CopyOfWikiList {
 					else {
 						myEvalData.getEvalRes().writeOutputToCsv(
 								pathToResult
-										+ "results/auto_eval_"
-										+ CopyOfCopyOfWikiList.threshold
+										+ "results/manual_eval"
 										+ "/evaluation_"
 										+ wikiListName.replace('/', '_')
 												.replace(':', '_')
@@ -406,8 +403,7 @@ public class CopyOfWikiList {
 				evalRes.add(myEvalData.getEvalRes());
 				try {
 					evalRes.writeOutputToCsv(pathToResult
-							+ "results/auto_eval_"
-							+ CopyOfCopyOfWikiList.threshold
+							+ "results/manual_eval"
 							+ "/evaluation_total" + CopyOfCopyOfWikiList.threshold + ".csv", evalRes.getEvalMatrix());
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -455,8 +451,7 @@ public class CopyOfWikiList {
 					try {
 						int fileCount = 1;
 						File file = new File(pathToResult
-								+ "results/auto_eval_"
-								+ CopyOfCopyOfWikiList.threshold
+								+ "results/manual_eval"
 								+ "/newTriples_"
 								+ wikiListName.replace('/', '_')
 										.replace(':', '_').replace('"', '_')
@@ -464,8 +459,7 @@ public class CopyOfWikiList {
 						if (file.exists()) {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
-											+ "results/auto_eval_"
-											+ CopyOfCopyOfWikiList.threshold
+											+ "results/manual_eval"
 											+ "/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
@@ -477,8 +471,7 @@ public class CopyOfWikiList {
 						else {
 							myEvalData.getEvalRes().writeOutputToCsv(
 									pathToResult
-											+ "results/auto_eval_"
-											+ CopyOfCopyOfWikiList.threshold
+											+ "results/manual_eval"
 											+ "/newTriples_"
 											+ wikiListName.replace('/', '_')
 													.replace(':', '_')
